@@ -1,7 +1,7 @@
 # Проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Александр Батолло](https://up.htmlacademy.ru/ecmascript/13/user/65755).
-* Наставник: `Неизвестно`.
+* Наставник: [Валерий Соловьев](https://up.htmlacademy.ru/ecmascript/13/user/8640).
 
 ---
 
