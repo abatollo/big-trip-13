@@ -19,7 +19,7 @@ const render = (container, template, place) => {
 const TRIP_EVENTS_AMOUNT = 3;
 
 // Флаг, сообщающий о том, должна ли быть открыта форма создания
-const isAddingNewEvent = false;
+const isAddingNewEvent = true;
 
 // -=-=-=-=-
 // ШАПКА
@@ -75,27 +75,13 @@ render(siteTripEventsElement, createEventsListTemplate(), `beforeend`);
 // Находим список после того, как он отрисовался
 const eventsList = siteTripEventsElement.querySelector(`.trip-events__list`);
 
-// Если открывается форма создания — мы отрисовываем новый пункт в начале списка, находим его и отрисовываем в него форму создания
+// Проверяем надо ли открыть форму создания
 if (isAddingNewEvent) {
-  // Отрисовываем пункт — в начале списка в основном содержимом
-  render(eventsList, createEventsItemTemplate(), `afterbegin`);
-
-  // Находим первый пункт после того, как он отрисовался
-  const eventsItem = eventsList.querySelector(`.trip-events__item:first-of-type`);
-
-  // Отрисовываем форму — в начале пункта списка
-  render(eventsItem, createEventEditTemplate(), `afterbegin`);
+  // Отрисовываем форму создания — в начале списка
+  render(eventsList, createEventEditTemplate(), `afterbegin`);
 }
 
 for (let i = 0; i < TRIP_EVENTS_AMOUNT; i++) {
   // Отрисовываем пункт(ы) — в конце списка в основном содержимом 
-  render(eventsList, createEventsItemTemplate(), `beforeend`);
-
-  // После того, как он отрисовался, находим нужный пункт по числу необходимых к отрисовке точек маршрута 
-  // (по числу + 1, потому что nth-of-type(0) ничего не найдёт), 
-  // а если открытая форма создания — добавляем с этому номеру ещё единицу
-  const eventsItem = eventsList.querySelector(`.trip-events__item:nth-of-type(${isAddingNewEvent ? i + 2 : i + 1})`);
-
-  // Отрисовываем точку маршрута — в начале пункта списка
-  render(eventsItem, createEventTemplate(), `afterbegin`);
+  render(eventsList, createEventTemplate(), `beforeend`);
 }
