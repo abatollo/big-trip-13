@@ -5,7 +5,6 @@ import {createTripFiltersTemplate} from "./view/trip-filters.js";
 import {createTripSortTemplate} from "./view/trip-sort.js";
 
 import {createEventsListTemplate} from "./view/events-list.js";
-import {createEventsItemTemplate} from "./view/events-item.js";
 
 import {createEventEditTemplate} from "./view/event-edit.js";
 
