@@ -14,7 +14,7 @@ import {createEventTemplate} from "./view/event.js";
 import {generatePoint} from "./mock/trip.js";
 
 const POINT_COUNT = 20;
-const points = new Array(POINT_COUNT).fill().map(generatePoint).sort((firstEl, secondEl) => +dayjs(secondEl.date_from) - +dayjs(firstEl.date_from));
+const points = new Array(POINT_COUNT).fill().map(generatePoint).sort((firstEl, secondEl) => dayjs(secondEl.date_from).valueOf() - dayjs(firstEl.date_from).valueOf());
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);

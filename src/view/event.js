@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import {capitalizeFirstLetter} from "../utils.js";
+const MINUTES_IN_HOUR = 60;
 
 const createEventOfferTemplate = (offer) => `
   <li class="event__offer">
@@ -18,6 +19,20 @@ const createEventOffersTemplate = (offers) => `
     ` : ``}
 `;
 
+const getDuration = (to, from) => {
+  let difference = dayjs(to).diff(from, `minutes`);
+
+  if (difference > MINUTES_IN_HOUR) {
+    difference = `${Math.floor(difference / MINUTES_IN_HOUR)}H ${difference % MINUTES_IN_HOUR}M`;
+  } else if (difference % MINUTES_IN_HOUR === 0) {
+    difference = `${Math.floor(difference / MINUTES_IN_HOUR)}H`;
+  } else {
+    difference += `M`;
+  }
+
+  return difference;
+};
+
 export const createEventTemplate = (point) => {
   const {is_favorite: isFavorite} = point;
 
@@ -28,21 +43,21 @@ export const createEventTemplate = (point) => {
   return (
     `<li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime="${dayjs(point.date_from).format(`YYYY-MM-DD`)}">${dayjs(point.date_from).format(`MMM D`)}</time>
+        <time class="event__date" datetime="${dayjs(point.dateFrom).format(`YYYY-MM-DD`)}">${dayjs(point.date_from).format(`MMM D`)}</time>
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
         </div>
         <h3 class="event__title">${capitalizeFirstLetter(point.type)} ${point.destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${dayjs(point.date_from).format(`YYYY-MM-DDTHH:mm`)}">${dayjs(point.date_from).format(`H:mm`)}</time>
+            <time class="event__start-time" datetime="${dayjs(point.date_from).format(`YYYY-MM-DDTHH:mm`)}">${dayjs(point.dateFrom).format(`H:mm`)}</time>
             &mdash;
-            <time class="event__end-time" datetime="${dayjs(point.date_to).format(`YYYY-MM-DDTHH:mm`)}">${dayjs(point.date_to).format(`H:mm`)}</time>
+            <time class="event__end-time" datetime="${dayjs(point.date_to).format(`YYYY-MM-DDTHH:mm`)}">${dayjs(point.dateTo).format(`H:mm`)}</time>
           </p>
-          <p class="event__duration">${dayjs(point.date_to).diff(point.date_from, `minutes`)}M</p>
+          <p class="event__duration">${getDuration(point.dateTo, point.dateFrom)}</p>
         </div>
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${point.base_price}</span>
+          &euro;&nbsp;<span class="event__price-value">${point.basePrice}</span>
         </p>
         ${createEventOffersTemplate(point.offers)}
         <button class="event__favorite-btn ${favoriteClassName}" type="button">
