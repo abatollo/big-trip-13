@@ -1,25 +1,32 @@
 import dayjs from "dayjs";
 import {capitalizeFirstLetter} from "../utils.js";
+import {OFFERS_AND_TYPES} from "../mock/trip.js";
 
-const createEventAvailableOfferTemplate = (offer) => `
+const checkIsOfferChecked = (userOffers, availableOffer) => Boolean(userOffers.find((userOffer) => userOffer.title === availableOffer.title));
+
+const findAvailableOffers = (type) => OFFERS_AND_TYPES.find((el) => el.type === type);
+
+const formatAttributeValue = (offerTitle) => offerTitle.replace(/\s+/g, `-`).toLowerCase();
+
+const createEventAvailableOfferTemplate = (userOffers, availableOffer) => `
   <div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-luggage-1" type="checkbox" name="event-offer-luggage" checked>
-    <label class="event__offer-label" for="event-offer-luggage-1">
-      <span class="event__offer-title">${offer.title}</span>
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${formatAttributeValue(availableOffer.title)}-1" type="checkbox" name="event-offer-${formatAttributeValue(availableOffer.title)}" ${checkIsOfferChecked(userOffers, availableOffer) ? `checked` : ``}>
+    <label class="event__offer-label" for="event-offer-${formatAttributeValue(availableOffer.title)}-1">
+      <span class="event__offer-title">${availableOffer.title}</span>
       &plus;&euro;&nbsp;
-      <span class="event__offer-price">${offer.price}</span>
+      <span class="event__offer-price">${availableOffer.price}</span>
     </label>
   </div>
 `;
 
-const createEventAvailableOffersTemplate = (offers) => `
-  ${offers.length ? `
+const createEventAvailableOffersTemplate = (userOffers, availableOffers) => `
+  ${availableOffers.offers.length ? `
     <section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
     <div class="event__available-offers">
       <div class="event__available-offers">
-        ${offers.map((offer) => createEventAvailableOfferTemplate(offer)).join(``)}
+        ${availableOffers.offers.map((availableOffer) => createEventAvailableOfferTemplate(userOffers, availableOffer)).join(``)}
       </div>
     </section>
     ` : ``}
@@ -140,7 +147,7 @@ export const createEventEditTemplate = (point) => {
           <button class="event__reset-btn" type="reset">Cancel</button>
         </header>
         <section class="event__details">
-          ${createEventAvailableOffersTemplate(point.offers)}
+          ${createEventAvailableOffersTemplate(point.offers, findAvailableOffers(point.type))}
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>

@@ -11,7 +11,8 @@ const CITIES = [
   `Geneva`,
   `Saint Petersburg`
 ];
-const OFFERS = [
+const OFFER_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];
+export const OFFERS_AND_TYPES = [
   {
     type: `taxi`,
     offers: [
@@ -174,15 +175,32 @@ const generateDestination = () => {
   };
 };
 
-const generateOffer = () => OFFERS[getRandomInteger(1, OFFERS.length - 1)];
+const generateOfferType = () => OFFER_TYPES[getRandomInteger(0, OFFER_TYPES.length - 1)];
+
+const generateOffers = (offerType) => {
+  const relevantOffer = OFFERS_AND_TYPES.find((el) => el.type === offerType);
+  const relevantOffers = [...relevantOffer.offers];
+
+  const randomOffersAmount = getRandomInteger(0, relevantOffers.length - 1);
+
+  let randomOffers = [];
+
+  for (let i = 0; i < randomOffersAmount; i++) {
+    const randomIndex = getRandomInteger(0, relevantOffers.length - 1);
+    randomOffers.push(relevantOffers.splice(randomIndex, 1)[0]);
+  }
+
+  return relevantOffers;
+};
 
 const generateDateFrom = () => (getRandomInteger(0, 1)) ? dayjs().subtract(getRandomInteger(1, HOUR_DIFFERENCE), `hours`).toISOString() : dayjs().add(getRandomInteger(1, HOUR_DIFFERENCE), `hours`).toISOString();
 
 const generateDateTo = (dateFrom) => dayjs(dateFrom).add(getRandomInteger(1, MINUTE_DIFFERENCE), `minutes`).toISOString();
 
 export const generatePoint = (item, index) => {
-  const offer = generateOffer();
   const dateFromValue = generateDateFrom();
+  const offerType = generateOfferType();
+  const offers = generateOffers(offerType);
 
   return {
     basePrice: getRandomInteger(1, MAX_PRICE),
@@ -191,7 +209,7 @@ export const generatePoint = (item, index) => {
     destination: generateDestination(),
     id: index,
     isFavorite: Boolean(getRandomInteger(0, 1)),
-    offers: offer.offers,
-    type: offer.type
+    offers,
+    type: offerType
   };
 };
