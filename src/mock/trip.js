@@ -1,19 +1,17 @@
 import dayjs from "dayjs";
 import {getRandomInteger} from "../utils.js";
 
-const RANDOM_TEXT_LENGTH = 5;
 const MAX_DESTINATION_PICTURES_COUNT = 7;
 const MAX_PRICE = 200;
 const HOUR_DIFFERENCE = 300;
 const MINUTE_DIFFERENCE = 250;
-const PLACEHOLDER_TEXT = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
 const CITIES = [
   `Amsterdam`,
   `Chamonix`,
   `Geneva`,
   `Saint Petersburg`
 ];
-const OFFER = [
+const OFFERS = [
   {
     type: `taxi`,
     offers: [
@@ -28,18 +26,7 @@ const OFFER = [
   },
   {
     type: `bus`,
-    offers: [
-      {
-        title: `Add luggage`,
-        price: 10
-      }, {
-        title: `Add meal`,
-        price: 10
-      }, {
-        title: `Choose seats`,
-        price: 5
-      }
-    ]
+    offers: []
   },
   {
     type: `train`,
@@ -138,24 +125,26 @@ const OFFER = [
     ]
   }
 ];
+const PLACEHOLDER_TEXT = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
+const RANDOM_TEXT_MAX_LENGTH = 5;
+const placeholderSentences = PLACEHOLDER_TEXT.split(`.`);
+const trimedPlaceholderSentences = placeholderSentences.map((el) => el.trim());
+const filteredTrimedPlaceholderSentences = trimedPlaceholderSentences.filter(Boolean);
 
 const generateRandomText = () => {
-  const placeholderText = PLACEHOLDER_TEXT.split(`.`);
-  const trimedPlaceholderText = placeholderText.map((el) => el.trim());
-  const filteredTrimedPlaceholderText = trimedPlaceholderText.filter(Boolean);
+  const randomLength = getRandomInteger(1, RANDOM_TEXT_MAX_LENGTH);
 
-  const randomLength = getRandomInteger(1, RANDOM_TEXT_LENGTH);
+  const copiedPlaceholderSentences = [...filteredTrimedPlaceholderSentences];
 
-  const randomText = [];
+  let randomText = ``;
 
   for (let i = 0; i < randomLength; i++) {
-    const randomIndex = getRandomInteger(0, filteredTrimedPlaceholderText.length - 1);
-    if (!randomText.includes(filteredTrimedPlaceholderText[randomIndex])) {
-      randomText.push(filteredTrimedPlaceholderText[randomIndex]);
-    }
+    const randomIndex = getRandomInteger(0, copiedPlaceholderSentences.length - 1);
+    randomText += copiedPlaceholderSentences.splice(randomIndex, 1)[0] + `. `;
   }
+  randomText = randomText.trimEnd();
 
-  return randomText.join(`. `) + `.`;
+  return randomText;
 };
 
 const generateDestinationName = () => {
@@ -185,7 +174,7 @@ const generateDestination = () => {
   };
 };
 
-const generateOffer = () => OFFER[getRandomInteger(1, OFFER.length - 1)];
+const generateOffer = () => OFFERS[getRandomInteger(1, OFFERS.length - 1)];
 
 const generateDateFrom = () => (getRandomInteger(0, 1)) ? dayjs().subtract(getRandomInteger(1, HOUR_DIFFERENCE), `hours`).toISOString() : dayjs().add(getRandomInteger(1, HOUR_DIFFERENCE), `hours`).toISOString();
 
@@ -202,7 +191,7 @@ export const generatePoint = (item, index) => {
     destination: generateDestination(),
     id: index,
     isFavorite: Boolean(getRandomInteger(0, 1)),
-    offers: (getRandomInteger(0, 1)) ? offer.offers : ``,
+    offers: offer.offers,
     type: offer.type
   };
 };
