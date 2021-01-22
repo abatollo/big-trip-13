@@ -11,8 +11,8 @@ const CITIES = [
   `Geneva`,
   `Saint Petersburg`
 ];
-const OFFER_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];
-export const OFFERS_AND_TYPES = [
+const POINT_TYPES = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];
+export const OFFERS = [
   {
     type: `taxi`,
     offers: [
@@ -175,10 +175,10 @@ const generateDestination = () => {
   };
 };
 
-const generateOfferType = () => OFFER_TYPES[getRandomInteger(0, OFFER_TYPES.length - 1)];
+const generateOfferType = () => POINT_TYPES[getRandomInteger(0, POINT_TYPES.length - 1)];
 
 const generateOffers = (offerType) => {
-  const relevantOffer = OFFERS_AND_TYPES.find((el) => el.type === offerType);
+  const relevantOffer = OFFERS.find((el) => el.type === offerType);
   const relevantOffers = [...relevantOffer.offers];
 
   const randomOffersAmount = getRandomInteger(0, relevantOffers.length - 1);

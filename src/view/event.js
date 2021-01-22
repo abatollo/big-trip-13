@@ -34,7 +34,7 @@ const getDuration = (to, from) => {
 };
 
 export const createEventTemplate = (point) => {
-  const {is_favorite: isFavorite} = point;
+  const {isFavorite} = point;
 
   const favoriteClassName = isFavorite
     ? `event__favorite-btn--active`
@@ -43,16 +43,16 @@ export const createEventTemplate = (point) => {
   return (
     `<li class="trip-events__item">
       <div class="event">
-        <time class="event__date" datetime="${dayjs(point.dateFrom).format(`YYYY-MM-DD`)}">${dayjs(point.date_from).format(`MMM D`)}</time>
+        <time class="event__date" datetime="${dayjs(point.dateFrom).format(`YYYY-MM-DD`)}">${dayjs(point.dateFrom).format(`MMM D`)}</time>
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
         </div>
         <h3 class="event__title">${capitalizeFirstLetter(point.type)} ${point.destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="${dayjs(point.date_from).format(`YYYY-MM-DDTHH:mm`)}">${dayjs(point.dateFrom).format(`H:mm`)}</time>
+            <time class="event__start-time" datetime="${dayjs(point.dateFrom).format(`YYYY-MM-DDTHH:mm`)}">${dayjs(point.dateFrom).format(`H:mm`)}</time>
             &mdash;
-            <time class="event__end-time" datetime="${dayjs(point.date_to).format(`YYYY-MM-DDTHH:mm`)}">${dayjs(point.dateTo).format(`H:mm`)}</time>
+            <time class="event__end-time" datetime="${dayjs(point.dateTo).format(`YYYY-MM-DDTHH:mm`)}">${dayjs(point.dateTo).format(`H:mm`)}</time>
           </p>
           <p class="event__duration">${getDuration(point.dateTo, point.dateFrom)}</p>
         </div>

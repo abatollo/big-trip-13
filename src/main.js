@@ -11,7 +11,7 @@ import {createEventEditTemplate} from "./view/event-edit.js";
 
 import {createEventTemplate} from "./view/event.js";
 
-import {generatePoint} from "./mock/trip.js";
+import {generatePoint, OFFERS} from "./mock/trip.js";
 
 const POINT_COUNT = 20;
 const points = new Array(POINT_COUNT).fill().map(generatePoint).sort((firstEl, secondEl) => dayjs(secondEl.date_from).valueOf() - dayjs(firstEl.date_from).valueOf());
@@ -83,7 +83,7 @@ const eventsList = siteTripEventsElement.querySelector(`.trip-events__list`);
 // Проверяем надо ли открыть форму создания
 if (isAddingNewEvent) {
   // Отрисовываем форму создания — в начале списка
-  render(eventsList, createEventEditTemplate(points[0]), `afterbegin`);
+  render(eventsList, createEventEditTemplate(points[0], OFFERS), `afterbegin`);
 }
 
 for (let i = 1; i < TRIP_EVENTS_AMOUNT; i++) {

@@ -1,10 +1,9 @@
 import dayjs from "dayjs";
 import {capitalizeFirstLetter} from "../utils.js";
-import {OFFERS_AND_TYPES} from "../mock/trip.js";
 
 const checkIsOfferChecked = (userOffers, availableOffer) => Boolean(userOffers.find((userOffer) => userOffer.title === availableOffer.title));
 
-const findAvailableOffers = (type) => OFFERS_AND_TYPES.find((el) => el.type === type);
+const findAvailableOffers = (type, overallOffersList) => overallOffersList.find((el) => el.type === type);
 
 const formatAttributeValue = (offerTitle) => offerTitle.replace(/\s+/g, `-`).toLowerCase();
 
@@ -46,7 +45,7 @@ const createEventPhotosTemplate = (photos) => `
     ` : ``}
 `;
 
-export const createEventEditTemplate = (point) => {
+export const createEventEditTemplate = (point, overallOffersList) => {
   return (
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -147,7 +146,7 @@ export const createEventEditTemplate = (point) => {
           <button class="event__reset-btn" type="reset">Cancel</button>
         </header>
         <section class="event__details">
-          ${createEventAvailableOffersTemplate(point.offers, findAvailableOffers(point.type))}
+          ${createEventAvailableOffersTemplate(point.offers, findAvailableOffers(point.type, overallOffersList))}
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
