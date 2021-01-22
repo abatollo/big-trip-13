@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import {createTripInfoTemplate} from "./view/trip-info.js";
 import {createTripTabsTemplate} from "./view/trip-tabs.js";
 import {createTripFiltersTemplate} from "./view/trip-filters.js";
@@ -8,14 +9,19 @@ import {createEventsListTemplate} from "./view/events-list.js";
 
 import {createEventEditTemplate} from "./view/event-edit.js";
 
-import {createEventTemplate} from "./view/event.js"
+import {createEventTemplate} from "./view/event.js";
+
+import {generatePoint, OFFERS} from "./mock/trip.js";
+
+const POINT_COUNT = 20;
+const points = new Array(POINT_COUNT).fill().map(generatePoint).sort((firstEl, secondEl) => dayjs(secondEl.date_from).valueOf() - dayjs(firstEl.date_from).valueOf());
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
 
 // Число необходимых к отрисовке точек маршрута 
-const TRIP_EVENTS_AMOUNT = 3;
+const TRIP_EVENTS_AMOUNT = 20;
 
 // Флаг, сообщающий о том, должна ли быть открыта форма создания
 const isAddingNewEvent = true;
@@ -77,10 +83,10 @@ const eventsList = siteTripEventsElement.querySelector(`.trip-events__list`);
 // Проверяем надо ли открыть форму создания
 if (isAddingNewEvent) {
   // Отрисовываем форму создания — в начале списка
-  render(eventsList, createEventEditTemplate(), `afterbegin`);
+  render(eventsList, createEventEditTemplate(points[0], OFFERS), `afterbegin`);
 }
 
-for (let i = 0; i < TRIP_EVENTS_AMOUNT; i++) {
+for (let i = 1; i < TRIP_EVENTS_AMOUNT; i++) {
   // Отрисовываем пункт(ы) — в конце списка в основном содержимом 
-  render(eventsList, createEventTemplate(), `beforeend`);
+  render(eventsList, createEventTemplate(points[i]), `beforeend`);
 }
