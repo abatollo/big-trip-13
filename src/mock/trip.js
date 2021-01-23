@@ -193,7 +193,7 @@ const generateOffers = (offerType) => {
   return relevantOffers;
 };
 
-const generateDateFrom = () => (getRandomInteger(0, 1)) ? dayjs().subtract(getRandomInteger(1, HOUR_DIFFERENCE), `hours`).toISOString() : dayjs().add(getRandomInteger(1, HOUR_DIFFERENCE), `hours`).toISOString();
+const generateDateFrom = () => dayjs().add(getRandomInteger(1, HOUR_DIFFERENCE) * (Math.random() < 0.5 ? -1 : 1), `hours`).toISOString();
 
 const generateDateTo = (dateFrom) => dayjs(dateFrom).add(getRandomInteger(1, MINUTE_DIFFERENCE), `minutes`).toISOString();
 
