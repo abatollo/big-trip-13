@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {capitalizeFirstLetter} from "../utils.js";
+import {capitalizeFirstLetter, createElement} from "../utils.js";
 
 const checkIsOfferChecked = (userOffers, availableOffer) => Boolean(userOffers.find((userOffer) => userOffer.title === availableOffer.title));
 
@@ -45,7 +45,7 @@ const createEventPhotosTemplate = (photos) => `
     ` : ``}
 `;
 
-export const createEventEditTemplate = (point, overallOffersList) => {
+const createEventEditTemplate = (point, overallOffersList) => {
   return (
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -159,3 +159,28 @@ export const createEventEditTemplate = (point, overallOffersList) => {
     </li>`
   );
 };
+
+export default class EventEdit {
+  constructor(point, overallOffersList) {
+    this._point = point;
+    this._overallOffersList = overallOffersList;
+
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventEditTemplate(this._point, this._overallOffersList);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

@@ -1,30 +1,19 @@
 import dayjs from "dayjs";
-import {createTripInfoTemplate} from "./view/trip-info.js";
-import {createTripTabsTemplate} from "./view/trip-tabs.js";
-import {createTripFiltersTemplate} from "./view/trip-filters.js";
-
-import {createTripSortTemplate} from "./view/trip-sort.js";
-
-import {createEventsListTemplate} from "./view/events-list.js";
-
-import {createEventEditTemplate} from "./view/event-edit.js";
-
-import {createEventTemplate} from "./view/event.js";
-
+import TripInfo from "./view/trip-info.js";
+import Tabs from "./view/trip-tabs.js";
+import TripFilters from "./view/trip-filters.js";
+import TripSort from "./view/trip-sort.js";
+import EventsList from "./view/events-list.js";
+import EventEdit from "./view/event-edit.js";
+import Event from "./view/event.js";
 import {generatePoint, OFFERS} from "./mock/trip.js";
+import {render, RenderPosition} from "./utils.js";
 
 const POINT_COUNT = 20;
-const points = new Array(POINT_COUNT).fill().map(generatePoint).sort((firstEl, secondEl) => dayjs(secondEl.date_from).valueOf() - dayjs(firstEl.date_from).valueOf());
-
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
+const points = new Array(POINT_COUNT).fill().map(generatePoint).sort((firstEl, secondEl) => dayjs(secondEl.dateFrom).valueOf() - dayjs(firstEl.dateFrom).valueOf());
 
 // Число необходимых к отрисовке точек маршрута 
 const TRIP_EVENTS_AMOUNT = 20;
-
-// Флаг, сообщающий о том, должна ли быть открыта форма создания
-const isAddingNewEvent = true;
 
 // -=-=-=-=-
 // ШАПКА
@@ -50,13 +39,13 @@ const siteTripControlsLastHeadingElement = siteTripControlsElement.querySelector
 // Отрисовываем элементы шапки
 
 // Отрисовываем контейнер с информацией о путешествии (пунктами назначения, датами и стоимостью) в общий контейнер в шапке
-render(siteTripMainElement, createTripInfoTemplate(), `afterbegin`);
+render(siteTripMainElement, new TripInfo().getElement(), RenderPosition.AFTERBEGIN);
 
 // Отрисовываем вкладки (Table и Stats) в контейнер с контролами, расположенный в общем контейнере в шапке
-render(siteTripControlsFirstHeadingElement, createTripTabsTemplate(), `afterend`);
+render(siteTripControlsFirstHeadingElement, new Tabs().getElement(), RenderPosition.AFTEREND);
 
 // Отрисовываем фильтры: форму с радио-кнопками (Everything, Future и Past) — в контейнер с контролами, расположенный в общем контейнере в шапке
-render(siteTripControlsLastHeadingElement, createTripFiltersTemplate(), `afterend`);
+render(siteTripControlsLastHeadingElement, new TripFilters().getElement(), RenderPosition.AFTEREND);
 
 // -=-=-=-=-
 // ОСНОВНОЕ СОДЕРЖИМОЕ
@@ -72,21 +61,39 @@ const siteTripEventsElement = document.querySelector(`.trip-events`);
 // Отрисовываем элементы основного содержимого
 
 // Отрисовываем сортировку: форму с радиокнопками (Day, Event, Time, Price, Offers) — в конце основного содержимого
-render(siteTripEventsElement, createTripSortTemplate(), `beforeend`);
+render(siteTripEventsElement, new TripSort().getElement(), RenderPosition.BEFOREEND);
 
 // Отрисовываем список в конец основного содержимого
-render(siteTripEventsElement, createEventsListTemplate(), `beforeend`);
+render(siteTripEventsElement, new EventsList().getElement(), RenderPosition.BEFOREEND);
 
 // Находим список после того, как он отрисовался
-const eventsList = siteTripEventsElement.querySelector(`.trip-events__list`);
+const eventsListComponent = siteTripEventsElement.querySelector(`.trip-events__list`);
 
-// Проверяем надо ли открыть форму создания
-if (isAddingNewEvent) {
-  // Отрисовываем форму создания — в начале списка
-  render(eventsList, createEventEditTemplate(points[0], OFFERS), `afterbegin`);
-}
+const TripTask = (eventsListElement, point, overallOffersList) => {
+  const eventComponent = new Event(point);
+  const eventEditComponent = new EventEdit(point, overallOffersList);
 
-for (let i = 1; i < TRIP_EVENTS_AMOUNT; i++) {
+  const replaceCardToForm = () => {
+    eventsListElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+  };
+
+  const replaceFormToCard = () => {
+    eventsListElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+  };
+
+  eventComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+    replaceCardToForm();
+  });
+
+  eventEditComponent.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
+    evt.preventDefault();
+    replaceFormToCard();
+  });
+
+  render(eventsListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
+};
+
+for (let i = 0; i < TRIP_EVENTS_AMOUNT; i++) {
   // Отрисовываем пункт(ы) — в конце списка в основном содержимом 
-  render(eventsList, createEventTemplate(points[i]), `beforeend`);
+  TripTask(eventsListComponent, points[i], OFFERS);
 }

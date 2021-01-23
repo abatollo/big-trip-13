@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {capitalizeFirstLetter} from "../utils.js";
+import {capitalizeFirstLetter, createElement} from "../utils.js";
 const MINUTES_IN_HOUR = 60;
 
 const createEventOfferTemplate = (offer) => `
@@ -33,7 +33,7 @@ const getDuration = (to, from) => {
   return difference;
 };
 
-export const createEventTemplate = (point) => {
+const createEventTemplate = (point) => {
   const {isFavorite} = point;
 
   const favoriteClassName = isFavorite
@@ -73,3 +73,27 @@ export const createEventTemplate = (point) => {
     </li>`
   );
 };
+
+export default class Event {
+  constructor(point) {
+    this._point = point;
+
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventTemplate(this._point);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
