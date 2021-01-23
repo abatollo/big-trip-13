@@ -27,6 +27,3 @@ export default class NoEvent {
     this._element = null;
   }
 }
-
-
-
