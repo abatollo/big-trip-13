@@ -6,14 +6,12 @@ import TripSort from "./view/trip-sort.js";
 import EventsList from "./view/events-list.js";
 import EventEdit from "./view/event-edit.js";
 import Event from "./view/event.js";
+import NoEvent from "./view/no-event.js";
 import {generatePoint, OFFERS} from "./mock/trip.js";
 import {render, RenderPosition} from "./utils.js";
 
 const POINT_COUNT = 20;
 const points = new Array(POINT_COUNT).fill().map(generatePoint).sort((firstEl, secondEl) => dayjs(secondEl.dateFrom).valueOf() - dayjs(firstEl.dateFrom).valueOf());
-
-// Число необходимых к отрисовке точек маршрута 
-const TRIP_EVENTS_AMOUNT = 20;
 
 // -=-=-=-=-
 // ШАПКА
@@ -60,40 +58,54 @@ const siteTripEventsElement = document.querySelector(`.trip-events`);
 
 // Отрисовываем элементы основного содержимого
 
-// Отрисовываем сортировку: форму с радиокнопками (Day, Event, Time, Price, Offers) — в конце основного содержимого
-render(siteTripEventsElement, new TripSort().getElement(), RenderPosition.BEFOREEND);
-
-// Отрисовываем список в конец основного содержимого
-render(siteTripEventsElement, new EventsList().getElement(), RenderPosition.BEFOREEND);
-
-// Находим список после того, как он отрисовался
-const eventsListComponent = siteTripEventsElement.querySelector(`.trip-events__list`);
-
 const TripTask = (eventsListElement, point, overallOffersList) => {
   const eventComponent = new Event(point);
   const eventEditComponent = new EventEdit(point, overallOffersList);
 
-  const replaceCardToForm = () => {
+  const replaceEventToForm = () => {
     eventsListElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
   };
 
-  const replaceFormToCard = () => {
+  const replaceFormToEvent = () => {
     eventsListElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
   };
 
+  const onEscKeyDown = (evt) => {
+    if (evt.key === `Escape` || evt.key === `Esc`) {
+      evt.preventDefault();
+      replaceFormToEvent();
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
   eventComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
-    replaceCardToForm();
+    replaceEventToForm();
+    document.addEventListener(`keydown`, onEscKeyDown);
   });
 
   eventEditComponent.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
     evt.preventDefault();
-    replaceFormToCard();
+    replaceFormToEvent();
+    document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
   render(eventsListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
-for (let i = 0; i < TRIP_EVENTS_AMOUNT; i++) {
-  // Отрисовываем пункт(ы) — в конце списка в основном содержимом 
-  TripTask(eventsListComponent, points[i], OFFERS);
+if (points.length === 0) {
+  render(siteTripEventsElement, new NoEvent().getElement(), RenderPosition.BEFOREEND);
+} else {
+  // Отрисовываем сортировку: форму с радиокнопками (Day, Event, Time, Price, Offers) — в конце основного содержимого
+  render(siteTripEventsElement, new TripSort().getElement(), RenderPosition.BEFOREEND);
+
+  // Отрисовываем список в конец основного содержимого
+  render(siteTripEventsElement, new EventsList().getElement(), RenderPosition.BEFOREEND);
+
+  // Находим список после того, как он отрисовался
+  const eventsListComponent = siteTripEventsElement.querySelector(`.trip-events__list`);
+
+  for (let i = 0; i < points.length; i++) {
+    // Отрисовываем пункт(ы) — в конце списка в основном содержимом 
+    TripTask(eventsListComponent, points[i], OFFERS);
+  }
 }
