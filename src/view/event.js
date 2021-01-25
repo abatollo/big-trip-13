@@ -95,7 +95,7 @@ export default class Event extends AbstractView {
   _editClickHandler(evt) {
     evt.preventDefault();
     // 3. А внутри абстрактного обработчика вызовем колбэк
-    this._callback.editClick();
+    this._callbacks.editClick();
   }
 
   setEditClickHandler(callback) {
@@ -105,7 +105,7 @@ export default class Event extends AbstractView {
     // где мы вызывали setClickHandler, что не всегда удобно
 
     // 1. Поэтому колбэк мы запишем во внутреннее свойство
-    this._callback.editClick = callback;
+    this._callbacks.editClick = callback;
     // 2. В addEventListener передадим абстрактный обработчик
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
   }
