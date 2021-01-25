@@ -8,7 +8,7 @@ import EventEdit from "./view/event-edit.js";
 import Event from "./view/event.js";
 import NoEvent from "./view/no-event.js";
 import {generatePoint, OFFERS} from "./mock/trip.js";
-import {render, RenderPosition} from "./utils.js";
+import {render, RenderPosition, replace, remove} from "./utils/render.js";
 
 const POINT_COUNT = 20;
 const points = new Array(POINT_COUNT).fill().map(generatePoint).sort((firstEl, secondEl) => dayjs(secondEl.dateFrom).valueOf() - dayjs(firstEl.dateFrom).valueOf());
@@ -37,13 +37,13 @@ const siteTripControlsLastHeadingElement = siteTripControlsElement.querySelector
 // Отрисовываем элементы шапки
 
 // Отрисовываем контейнер с информацией о путешествии (пунктами назначения, датами и стоимостью) в общий контейнер в шапке
-render(siteTripMainElement, new TripInfo().getElement(), RenderPosition.AFTERBEGIN);
+render(siteTripMainElement, new TripInfo(), RenderPosition.AFTERBEGIN);
 
 // Отрисовываем вкладки (Table и Stats) в контейнер с контролами, расположенный в общем контейнере в шапке
-render(siteTripControlsFirstHeadingElement, new Tabs().getElement(), RenderPosition.AFTEREND);
+render(siteTripControlsFirstHeadingElement, new Tabs(), RenderPosition.AFTEREND);
 
 // Отрисовываем фильтры: форму с радио-кнопками (Everything, Future и Past) — в контейнер с контролами, расположенный в общем контейнере в шапке
-render(siteTripControlsLastHeadingElement, new TripFilters().getElement(), RenderPosition.AFTEREND);
+render(siteTripControlsLastHeadingElement, new TripFilters(), RenderPosition.AFTEREND);
 
 // -=-=-=-=-
 // ОСНОВНОЕ СОДЕРЖИМОЕ
@@ -63,11 +63,11 @@ const TripTask = (eventsListElement, point, overallOffersList) => {
   const eventEditComponent = new EventEdit(point, overallOffersList);
 
   const replaceEventToForm = () => {
-    eventsListElement.replaceChild(eventEditComponent.getElement(), eventComponent.getElement());
+    replace(eventEditComponent, eventComponent);
   };
 
   const replaceFormToEvent = () => {
-    eventsListElement.replaceChild(eventComponent.getElement(), eventEditComponent.getElement());
+    replace(eventComponent, eventEditComponent);
   };
 
   const onEscKeyDown = (evt) => {
@@ -78,28 +78,27 @@ const TripTask = (eventsListElement, point, overallOffersList) => {
     }
   };
 
-  eventComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+  eventComponent.setEditClickHandler(() => {
     replaceEventToForm();
     document.addEventListener(`keydown`, onEscKeyDown);
   });
 
-  eventEditComponent.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
-    evt.preventDefault();
+  eventEditComponent.setFormSubmitHandler(() => {
     replaceFormToEvent();
     document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
-  render(eventsListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
+  render(eventsListElement, eventComponent, RenderPosition.BEFOREEND);
 };
 
 if (points.length === 0) {
-  render(siteTripEventsElement, new NoEvent().getElement(), RenderPosition.BEFOREEND);
+  render(siteTripEventsElement, new NoEvent(), RenderPosition.BEFOREEND);
 } else {
   // Отрисовываем сортировку: форму с радиокнопками (Day, Event, Time, Price, Offers) — в конце основного содержимого
-  render(siteTripEventsElement, new TripSort().getElement(), RenderPosition.BEFOREEND);
+  render(siteTripEventsElement, new TripSort(), RenderPosition.BEFOREEND);
 
   // Отрисовываем список в конец основного содержимого
-  render(siteTripEventsElement, new EventsList().getElement(), RenderPosition.BEFOREEND);
+  render(siteTripEventsElement, new EventsList(), RenderPosition.BEFOREEND);
 
   // Находим список после того, как он отрисовался
   const eventsListComponent = siteTripEventsElement.querySelector(`.trip-events__list`);
