@@ -1,5 +1,6 @@
+import AbstractView from "./abstract.js";
 import dayjs from "dayjs";
-import {capitalizeFirstLetter, createElement} from "../utils.js";
+import {capitalizeFirstLetter} from "../utils/common.js";
 
 const checkIsOfferChecked = (userOffers, availableOffer) => Boolean(userOffers.find((userOffer) => userOffer.title === availableOffer.title));
 
@@ -160,27 +161,40 @@ const createEventEditTemplate = (point, overallOffersList) => {
   );
 };
 
-export default class EventEdit {
+export default class EventEdit extends AbstractView {
   constructor(point, overallOffersList) {
+    super();
     this._point = point;
     this._overallOffersList = overallOffersList;
 
-    this._element = null;
+    // 4. Теперь обработчик - метод класса, а не стрелочная функция.
+    // Поэтому при передаче в addEventListener он теряет контекст (this),
+    // а с контекстом - доступ к свойствам и методам.
+    // Чтобы такого не происходило, нужно насильно
+    // привязать обработчик к контексту с помощью bind
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
   getTemplate() {
     return createEventEditTemplate(this._point, this._overallOffersList);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    // 3. А внутри абстрактного обработчика вызовем колбэк
+    this._callback.formSubmit();
   }
 
-  removeElement() {
-    this._element = null;
+  setFormSubmitHandler(callback) {
+    // Мы могли бы сразу передать callback в addEventListener,
+    // но тогда бы для удаления обработчика в будущем,
+    // нам нужно было бы производить это снаружи, где-то там,
+    // где мы вызывали setClickHandler, что не всегда удобно
+
+    // 1. Поэтому колбэк мы запишем во внутреннее свойство
+    this._callback.formSubmit = callback;
+
+    // 2. В addEventListener передадим абстрактный обработчик
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 }

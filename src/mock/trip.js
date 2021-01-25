@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {getRandomInteger} from "../utils.js";
+import {getRandomInteger} from "../utils/common.js";
 
 const MAX_DESTINATION_PICTURES_COUNT = 7;
 const MAX_PRICE = 200;
