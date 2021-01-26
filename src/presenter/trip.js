@@ -48,9 +48,6 @@ export default class Trip {
       case SortType.PRICE:
         this._points.sort(sortByPrice);
         break;
-      case SortType.DAY:
-        this._points.sort(sortByDate);
-        break;
       default:
         this._points = this._sourcedPoints;
     }
