@@ -167,11 +167,6 @@ export default class EventEdit extends AbstractView {
     this._point = point;
     this._overallOffersList = overallOffersList;
 
-    // 4. Теперь обработчик - метод класса, а не стрелочная функция.
-    // Поэтому при передаче в addEventListener он теряет контекст (this),
-    // а с контекстом - доступ к свойствам и методам.
-    // Чтобы такого не происходило, нужно насильно
-    // привязать обработчик к контексту с помощью bind
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
@@ -181,20 +176,11 @@ export default class EventEdit extends AbstractView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    // 3. А внутри абстрактного обработчика вызовем колбэк
-    this._callbacks.formSubmit();
+    this._callbacks.formSubmit(this._point);
   }
 
   setFormSubmitHandler(callback) {
-    // Мы могли бы сразу передать callback в addEventListener,
-    // но тогда бы для удаления обработчика в будущем,
-    // нам нужно было бы производить это снаружи, где-то там,
-    // где мы вызывали setClickHandler, что не всегда удобно
-
-    // 1. Поэтому колбэк мы запишем во внутреннее свойство
     this._callbacks.formSubmit = callback;
-
-    // 2. В addEventListener передадим абстрактный обработчик
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 }
