@@ -8,7 +8,7 @@ const findAvailableOffers = (type, overallOffersList) => overallOffersList.find(
 
 const formatAttributeValue = (offerTitle) => offerTitle.replace(/\s+/g, `-`).toLowerCase();
 
-const createEventAvailableOfferTemplate = (userOffers, availableOffer) => `
+const createPointAvailableOfferTemplate = (userOffers, availableOffer) => `
   <div class="event__offer-selector">
     <input class="event__offer-checkbox  visually-hidden" id="event-offer-${formatAttributeValue(availableOffer.title)}-1" type="checkbox" name="event-offer-${formatAttributeValue(availableOffer.title)}" ${checkIsOfferChecked(userOffers, availableOffer) ? `checked` : ``}>
     <label class="event__offer-label" for="event-offer-${formatAttributeValue(availableOffer.title)}-1">
@@ -19,34 +19,34 @@ const createEventAvailableOfferTemplate = (userOffers, availableOffer) => `
   </div>
 `;
 
-const createEventAvailableOffersTemplate = (userOffers, availableOffers) => `
+const createPointAvailableOffersTemplate = (userOffers, availableOffers) => `
   ${availableOffers.offers.length ? `
     <section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
     <div class="event__available-offers">
       <div class="event__available-offers">
-        ${availableOffers.offers.map((availableOffer) => createEventAvailableOfferTemplate(userOffers, availableOffer)).join(``)}
+        ${availableOffers.offers.map((availableOffer) => createPointAvailableOfferTemplate(userOffers, availableOffer)).join(``)}
       </div>
     </section>
     ` : ``}
 `;
 
-const createEventPhotoTemplate = (photo) => `
+const createPointPhotoTemplate = (photo) => `
   <img class="event__photo" src="${photo.src}" alt="${photo.description}">
 `;
 
-const createEventPhotosTemplate = (photos) => `
+const createPointPhotosTemplate = (photos) => `
   ${photos.length ? `
     <div class="event__photos-container">
       <div class="event__photos-tape">
-        ${photos.map((photo) => createEventPhotoTemplate(photo)).join(``)}
+        ${photos.map((photo) => createPointPhotoTemplate(photo)).join(``)}
       </div>
     </div>
     ` : ``}
 `;
 
-const createEventEditTemplate = (point, overallOffersList) => {
+const createPointEditTemplate = (point, overallOffersList) => {
   return (
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -147,13 +147,13 @@ const createEventEditTemplate = (point, overallOffersList) => {
           <button class="event__reset-btn" type="reset">Cancel</button>
         </header>
         <section class="event__details">
-          ${createEventAvailableOffersTemplate(point.offers, findAvailableOffers(point.type, overallOffersList))}
+          ${createPointAvailableOffersTemplate(point.offers, findAvailableOffers(point.type, overallOffersList))}
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${point.destination.description}</p>
 
-            ${createEventPhotosTemplate(point.destination.pictures)}
+            ${createPointPhotosTemplate(point.destination.pictures)}
           </section>
         </section>
       </form>
@@ -176,7 +176,7 @@ export default class EventEdit extends AbstractView {
   }
 
   getTemplate() {
-    return createEventEditTemplate(this._point, this._overallOffersList);
+    return createPointEditTemplate(this._point, this._overallOffersList);
   }
 
   _formSubmitHandler(evt) {
