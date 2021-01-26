@@ -4,7 +4,7 @@ import PointPresenter from "./point.js";
 import {render, RenderPosition} from "../utils/render.js";
 import {updateItem} from "../utils/common.js";
 import {SortType} from "../const.js";
-import {sortByPrice, sortByTime} from "../utils/sort.js";
+import {sortByPrice, sortByTime, sortByDate} from "../utils/sort.js";
 
 export default class Trip {
   constructor(tripEventsContainer) {
@@ -48,8 +48,11 @@ export default class Trip {
       case SortType.PRICE:
         this._points.sort(sortByPrice);
         break;
+      case SortType.DAY:
+        this._points.sort(sortByDate);
+        break;
       default:
-        this._points = this._sourcedPoints.slice();
+        this._points = this._sourcedPoints;
     }
 
     this._currentSortType = sortType;
