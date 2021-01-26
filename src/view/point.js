@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import {capitalizeFirstLetter} from "../utils/common.js";
 const MINUTES_IN_HOUR = 60;
 
-const createEventOfferTemplate = (offer) => `
+const createPointOfferTemplate = (offer) => `
   <li class="event__offer">
     <span class="event__offer-title">${offer.title}</span>
     &plus;&euro;&nbsp;
@@ -11,11 +11,11 @@ const createEventOfferTemplate = (offer) => `
   </li>
 `;
 
-const createEventOffersTemplate = (offers) => `
+const createPointOffersTemplate = (offers) => `
   ${offers.length ? `
     <h4 class="visually-hidden">Offers:</h4>
     <ul class="event__selected-offers">
-      ${offers.map((offer) => createEventOfferTemplate(offer)).join(``)}
+      ${offers.map((offer) => createPointOfferTemplate(offer)).join(``)}
     </ul>
     ` : ``}
 `;
@@ -34,7 +34,7 @@ const getDuration = (to, from) => {
   return difference;
 };
 
-const createEventTemplate = (point) => {
+const createPointTemplate = (point) => {
   const {isFavorite} = point;
 
   const favoriteClassName = isFavorite
@@ -60,7 +60,7 @@ const createEventTemplate = (point) => {
         <p class="event__price">
           &euro;&nbsp;<span class="event__price-value">${point.basePrice}</span>
         </p>
-        ${createEventOffersTemplate(point.offers)}
+        ${createPointOffersTemplate(point.offers)}
         <button class="event__favorite-btn ${favoriteClassName}" type="button">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -75,38 +75,36 @@ const createEventTemplate = (point) => {
   );
 };
 
-export default class Event extends AbstractView {
+export default class Point extends AbstractView {
   constructor(point) {
     super();
     this._point = point;
 
-    // 4. Теперь обработчик - метод класса, а не стрелочная функция.
-    // Поэтому при передаче в addEventListener он теряет контекст (this),
-    // а с контекстом - доступ к свойствам и методам.
-    // Чтобы такого не происходило, нужно насильно
-    // привязать обработчик к контексту с помощью bind
     this._editClickHandler = this._editClickHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
   getTemplate() {
-    return createEventTemplate(this._point);
+    return createPointTemplate(this._point);
   }
 
   _editClickHandler(evt) {
     evt.preventDefault();
-    // 3. А внутри абстрактного обработчика вызовем колбэк
     this._callbacks.editClick();
   }
 
-  setEditClickHandler(callback) {
-    // Мы могли бы сразу передать callback в addEventListener,
-    // но тогда бы для удаления обработчика в будущем,
-    // нам нужно было бы производить это снаружи, где-то там,
-    // где мы вызывали setClickHandler, что не всегда удобно
+  _favoriteClickHandler() {
+    this._callbacks.favoriteClick();
+  }
 
-    // 1. Поэтому колбэк мы запишем во внутреннее свойство
+  setEditClickHandler(callback) {
     this._callbacks.editClick = callback;
-    // 2. В addEventListener передадим абстрактный обработчик
+
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callbacks.favoriteClick = callback;
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
   }
 }
