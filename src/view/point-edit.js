@@ -1,6 +1,9 @@
 import dayjs from "dayjs";
 import {capitalizeFirstLetter} from "../utils/common.js";
 import SmartView from "./smart.js";
+import flatpickr from "flatpickr";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const BLANK_POINT = {
   "type": `flight`,
@@ -23,7 +26,7 @@ const formatAttributeValue = (offerTitle) => offerTitle.replace(/\s+/g, `-`).toL
 
 const createPointAvailableOfferTemplate = (userOffers, availableOffer) => `
   <div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${formatAttributeValue(availableOffer.title)}-1" type="checkbox" name="event-offer-${formatAttributeValue(availableOffer.title)}" ${checkIsOfferChecked(userOffers, availableOffer) ? `checked` : ``}>
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${formatAttributeValue(availableOffer.title)}-1" type="checkbox" name="event-offer-${formatAttributeValue(availableOffer.title)}" data-offer="${availableOffer.title}" ${checkIsOfferChecked(userOffers, availableOffer) ? `checked` : ``}>
     <label class="event__offer-label" for="event-offer-${formatAttributeValue(availableOffer.title)}-1">
       <span class="event__offer-title">${availableOffer.title}</span>
       &plus;&euro;&nbsp;
@@ -189,13 +192,23 @@ export default class PointEdit extends SmartView {
     this._data = PointEdit.parsePointToData(point, isEditing);
     this._overallOffersList = overallOffersList;
     this._overallDestinationsList = overallDestinationsList;
+    this._datepickerFrom = null;
+    this._datepickerTo = null;
+
+    this._dueFromDateChangeHandler = this._dueFromDateChangeHandler.bind(this);
+    this._dueToDateChangeHandler = this._dueToDateChangeHandler.bind(this);
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._formCloseClickHandler = this._formCloseClickHandler.bind(this);
+    this._inputPriceHandler = this._inputPriceHandler.bind(this);
+    this._selectOffersHandler = this._selectOffersHandler.bind(this);
 
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setFromDatepicker();
+    this._setToDatepicker();
   }
 
   getTemplate() {
@@ -233,10 +246,19 @@ export default class PointEdit extends SmartView {
 
   restoreHandlers() {
     this._setInnerHandlers();
+    this._setFromDatepicker();
+    this._setToDatepicker();
+    this.setDeleteClickHandler(this._callbacks.deleteClick);
     this.setFormSubmitHandler(this._callbacks.formSubmit);
   }
 
   _setInnerHandlers() {
+    if (this.getElement().querySelector(`.event__rollup-btn`)) {
+      this.getElement()
+        .querySelector(`.event__rollup-btn`)
+        .addEventListener(`click`, this._formCloseClickHandler);
+    }
+
     this.getElement()
       .querySelector(`.event__type-group`)
       .addEventListener(`change`, this._typeChangeHandler);
@@ -244,6 +266,16 @@ export default class PointEdit extends SmartView {
     this.getElement()
       .querySelector(`#event-destination-1`)
       .addEventListener(`change`, this._destinationChangeHandler);
+
+    this.getElement()
+      .querySelector(`.event__input--price`)
+      .addEventListener(`change`, this._inputPriceHandler);
+
+    if (this.getElement().querySelector(`.event__details`)) {
+      this.getElement()
+        .querySelector(`.event__details`)
+        .addEventListener(`change`, this._selectOffersHandler);
+    }
   }
 
   _destinationChangeHandler(evt) {
@@ -269,6 +301,108 @@ export default class PointEdit extends SmartView {
     this.updateData({
       type: evt.target.value,
       offers: newOffers,
+    });
+  }
+
+  reset(data) {
+    this.updateData(
+        PointEdit.parseDataToPoint(data)
+    );
+  }
+
+  _selectOffersHandler(evt) {
+    const availableOffers = findAvailableOffers(this._data.type, this._overallOffersList);
+    const newOffer = availableOffers.offers.find((el) => el.title === evt.target.dataset.offer);
+    if (evt.target.checked) {
+      this._data.offers.push(newOffer);
+    } else {
+      const index = this._data.offers.indexOf(newOffer);
+      this._data.offers.splice(index, 1);
+    }
+  }
+
+  _formCloseClickHandler() {
+    this._callbacks.formClick();
+    this.removeElement();
+  }
+
+  setCloseFormClickHandler(callback) {
+    this._callbacks.formClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._formCloseClickHandler);
+  }
+
+  _formDeleteClickHandler() {
+    this._callbacks.deleteClick();
+    this.removeElement();
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callbacks.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formCloseClickHandler); // переделать
+    // плюс закрытие по esc
+  }
+
+  _inputPriceHandler({target}) {
+    if (Number.isFinite(+target.value)) {
+      this.updateData({
+        basePrice: +target.value
+      });
+    } else {
+      target.setCustomValidity(`Only numeric value allowed`);
+      return;
+    }
+  }
+
+  _setFromDatepicker() {
+    if (this._datepickerFrom) {
+      this._datepickerFrom.destroy();
+      this._datepickerFrom = null;
+    }
+
+    if (this._data.dateFrom) {
+      this._datepickerFrom = flatpickr(
+          this.getElement().querySelectorAll(`#event-start-time-1`),
+          {
+            "dateFormat": `d/m/y H:i`,
+            "defaultDate": this._data.dateFrom,
+            "enableTime": true,
+            "time_24hr": true,
+            "onChange": this._dueFromDateChangeHandler
+          }
+      );
+    }
+  }
+
+  _setToDatepicker() {
+    if (this._datepickerTo) {
+      this._datepickerTo.destroy();
+      this._datepickerTo = null;
+    }
+
+    if (this._data.dateTo) {
+      this._datepickerTo = flatpickr(
+          this.getElement().querySelectorAll(`#event-end-time-1`),
+          {
+            "dateFormat": `d/m/y H:i`,
+            "defaultDate": this._data.dateTo,
+            "minDate": this._data.dateFrom,
+            "enableTime": true,
+            "time_24hr": true,
+            "onChange": this._dueToDateChangeHandler
+          }
+      );
+    }
+  }
+
+  _dueFromDateChangeHandler([userDateFrom]) {
+    this.updateData({
+      dateFrom: userDateFrom
+    });
+  }
+
+  _dueToDateChangeHandler([userDateTo]) {
+    this.updateData({
+      dateTo: userDateTo
     });
   }
 }

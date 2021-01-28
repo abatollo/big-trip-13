@@ -21,6 +21,8 @@ export default class Point {
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleCloseClick = this._handleCloseClick.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._handleFormClose = this._handleFormClose.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
   init(point, overallOffersList, overallDestinationsList) {
@@ -35,6 +37,8 @@ export default class Point {
     this._pointComponent.setEditClickHandler(this._handleOpenClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._pointEditComponent.setFormSubmitHandler(this._handleFormSubmit);
+    this._pointEditComponent.setCloseFormClickHandler(this._handleFormClose);
+    this._pointEditComponent.setDeleteClickHandler(this._handleDeleteClick);
 
     if (prevPointComponent === null && prevPointEditComponent === null) {
       render(this._pointsListContainer, this._pointComponent, RenderPosition.BEFOREEND);
@@ -97,5 +101,17 @@ export default class Point {
             this._point,
             {isFavorite: !this._point.isFavorite}
         ));
+  }
+
+  _handleFormClose() {
+    this._pointEditComponent.reset(this._point);
+    this._replaceFormToPoint();
+    this._pointEditComponent.removeElement();
+  }
+
+  _handleDeleteClick() {
+    this._pointEditComponent.reset(this._point);
+    this._replaceFormToPoint();
+    this._pointEditComponent.removeElement();
   }
 }
