@@ -215,3 +215,15 @@ export const generatePoint = () => {
     type: offerType
   };
 };
+
+const getDestination = (currentValue, index) => {
+  return {
+    name: CITIES[index],
+    description: generateRandomText(),
+    pictures: new Array(MAX_DESTINATION_PICTURES_COUNT).fill().map(generateDestinationPictures)
+  };
+};
+
+export const generateDestinations = () => {
+  return new Array(CITIES.length).fill().map(getDestination);
+};

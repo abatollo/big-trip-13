@@ -2,12 +2,13 @@ import dayjs from "dayjs";
 import TripInfoView from "./view/trip-info.js";
 import TabsView from "./view/trip-tabs.js";
 import TripFiltersView from "./view/trip-filters.js";
-import {generatePoint, OFFERS} from "./mock/trip.js";
+import {generatePoint, OFFERS, generateDestinations} from "./mock/trip.js";
 import {render, RenderPosition} from "./utils/render.js";
 import TripPresenter from "./presenter/trip.js";
 
 const POINT_COUNT = 20;
 const points = new Array(POINT_COUNT).fill().map(generatePoint).sort((firstEl, secondEl) => dayjs(secondEl.dateFrom).valueOf() - dayjs(firstEl.dateFrom).valueOf());
+const destinations = generateDestinations();
 
 const siteTripMainElement = document.querySelector(`.trip-main`);
 const siteTripControlsElement = siteTripMainElement.querySelector(`.trip-controls`);
@@ -21,4 +22,4 @@ render(siteTripControlsLastHeadingElement, new TripFiltersView(), RenderPosition
 const siteTripEventsElement = document.querySelector(`.trip-events`);
 
 const tripPresenter = new TripPresenter(siteTripEventsElement);
-tripPresenter.init(points, OFFERS);
+tripPresenter.init(points, OFFERS, destinations);
