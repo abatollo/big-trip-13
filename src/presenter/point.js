@@ -23,14 +23,14 @@ export default class Point {
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
   }
 
-  init(point, overallOffersList) {
+  init(point, overallOffersList, overallDestinationsList) {
     this._point = point;
 
     const prevPointComponent = this._pointComponent;
     const prevPointEditComponent = this._pointEditComponent;
 
     this._pointComponent = new PointView(this._point);
-    this._pointEditComponent = new PointEditView(this._point, overallOffersList);
+    this._pointEditComponent = new PointEditView(this._point, overallOffersList, overallDestinationsList, true);
 
     this._pointComponent.setEditClickHandler(this._handleOpenClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -73,9 +73,9 @@ export default class Point {
     this._replaceFormToPoint();
   }
 
-  _handleFormSubmit(evt) {
-    evt.preventDefault();
+  _handleFormSubmit(task) {
     this._replaceFormToPoint();
+    this._changeData(task);
   }
 
   _replacePointToForm() {

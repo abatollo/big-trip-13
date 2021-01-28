@@ -1,6 +1,19 @@
-import AbstractView from "./abstract.js";
 import dayjs from "dayjs";
 import {capitalizeFirstLetter} from "../utils/common.js";
+import SmartView from "./smart.js";
+
+const BLANK_POINT = {
+  "type": `flight`,
+  "destination": {
+    "name": ``,
+    "description": ``,
+    "pictures": []
+  },
+  "dateFrom": new Date(),
+  "dateTo": new Date(),
+  "basePrice": ``,
+  "offers": []
+};
 
 const checkIsOfferChecked = (userOffers, availableOffer) => Boolean(userOffers.find((userOffer) => userOffer.title === availableOffer.title));
 
@@ -32,9 +45,7 @@ const createPointAvailableOffersTemplate = (userOffers, availableOffers) => `
     ` : ``}
 `;
 
-const createPointPhotoTemplate = (photo) => `
-  <img class="event__photo" src="${photo.src}" alt="${photo.description}">
-`;
+const createPointPhotoTemplate = (photo) => `<img class="event__photo" src="${photo.src}" alt="${photo.description}">`;
 
 const createPointPhotosTemplate = (photos) => `
   ${photos.length ? `
@@ -46,7 +57,19 @@ const createPointPhotosTemplate = (photos) => `
     ` : ``}
 `;
 
-const createPointEditTemplate = (point, overallOffersList) => {
+const createPointRollupBtn = () => `
+  <button class="event__rollup-btn" type="button">
+    <span class="visually-hidden">Open event</span>
+  </button>
+`;
+
+const createPointDestinationOptions = (overallDestinationsList) => `${overallDestinationsList.map((destination) => createPointDestinationOption(destination)).join(``)}`;
+
+const createPointDestinationOption = (destination) => `<option value="${destination.name}"></option>`;
+
+const createPointEditTemplate = (data, overallOffersList, overallDestinationsList) => {
+  const {type, destination, dateFrom, dateTo, basePrice, offers, isEditing} = data;
+
   return (
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -54,7 +77,7 @@ const createPointEditTemplate = (point, overallOffersList) => {
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${point.type}.png" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -117,22 +140,20 @@ const createPointEditTemplate = (point, overallOffersList) => {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              ${capitalizeFirstLetter(point.type)}
+              ${capitalizeFirstLetter(type)}
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${point.destination.name}" list="destination-list-1">
+            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
             <datalist id="destination-list-1">
-              <option value="Amsterdam"></option>
-              <option value="Geneva"></option>
-              <option value="Chamonix"></option>
+              ${createPointDestinationOptions(overallDestinationsList)}
             </datalist>
           </div>
 
           <div class="event__field-group  event__field-group--time">
             <label class="visually-hidden" for="event-start-time-1">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dayjs(point.dateFrom).format(`DD/MM/YY H:mm`)}">
+            <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dayjs(dateFrom).format(`DD/MM/YY H:mm`)}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dayjs(point.dateTo).format(`DD/MM/YY H:mm`)}">
+            <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dayjs(dateTo).format(`DD/MM/YY H:mm`)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -140,20 +161,21 @@ const createPointEditTemplate = (point, overallOffersList) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${point.basePrice}">
+            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
           <button class="event__reset-btn" type="reset">Cancel</button>
+          ${isEditing ? createPointRollupBtn() : ``}
         </header>
         <section class="event__details">
-          ${createPointAvailableOffersTemplate(point.offers, findAvailableOffers(point.type, overallOffersList))}
+          ${createPointAvailableOffersTemplate(offers, findAvailableOffers(type, overallOffersList))}
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${point.destination.description}</p>
+            <p class="event__destination-description">${destination.description}</p>
 
-            ${createPointPhotosTemplate(point.destination.pictures)}
+            ${createPointPhotosTemplate(destination.pictures)}
           </section>
         </section>
       </form>
@@ -161,26 +183,92 @@ const createPointEditTemplate = (point, overallOffersList) => {
   );
 };
 
-export default class EventEdit extends AbstractView {
-  constructor(point, overallOffersList) {
+export default class PointEdit extends SmartView {
+  constructor(point = BLANK_POINT, overallOffersList, overallDestinationsList, isEditing) {
     super();
-    this._point = point;
+    this._data = PointEdit.parsePointToData(point, isEditing);
     this._overallOffersList = overallOffersList;
+    this._overallDestinationsList = overallDestinationsList;
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+
+    this._typeChangeHandler = this._typeChangeHandler.bind(this);
+    this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
+
+    this._setInnerHandlers();
   }
 
   getTemplate() {
-    return createPointEditTemplate(this._point, this._overallOffersList);
+    return createPointEditTemplate(this._data, this._overallOffersList, this._overallDestinationsList);
   }
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callbacks.formSubmit(this._point);
+
+    this._callbacks.formSubmit(PointEdit.parsePointToData(this._data));
   }
 
   setFormSubmitHandler(callback) {
     this._callbacks.formSubmit = callback;
-    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
+    this.getElement().addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  static parsePointToData(point, isEditing) {
+    return Object.assign(
+        {},
+        point,
+        {
+          isEditing
+        }
+    );
+  }
+
+  static parseDataToPoint(data) {
+    delete data.isEditing;
+    return Object.assign(
+        {},
+        data
+    );
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setFormSubmitHandler(this._callbacks.formSubmit);
+  }
+
+  _setInnerHandlers() {
+    this.getElement()
+      .querySelector(`.event__type-group`)
+      .addEventListener(`change`, this._typeChangeHandler);
+
+    this.getElement()
+      .querySelector(`#event-destination-1`)
+      .addEventListener(`change`, this._destinationChangeHandler);
+  }
+
+  _destinationChangeHandler(evt) {
+    const pointNames = this._overallDestinationsList.reduce((accumulator, currentValue) => {
+      accumulator[currentValue.name] = currentValue;
+      return accumulator;
+    }, {});
+
+    const newDestination = this._overallDestinationsList.find((destination) => destination.name === evt.target.value);
+
+    if (newDestination) {
+      this.updateData({
+        destination: newDestination
+      });
+    } else {
+      evt.target.setCustomValidity(`Enter the value from the list, ${Object.keys(pointNames)}`);
+      return;
+    }
+  }
+
+  _typeChangeHandler(evt) {
+    const newOffers = this._overallOffersList.find((elem) => elem.type.toLowerCase() === evt.target.value).offers;
+    this.updateData({
+      type: evt.target.value,
+      offers: newOffers,
+    });
   }
 }

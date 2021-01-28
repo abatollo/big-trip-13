@@ -20,10 +20,11 @@ export default class Trip {
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
-  init(points, overallOffersList) {
+  init(points, overallOffersList, overallDestinationsList) {
     this._points = points.slice();
     this._sourcedPoints = points.slice();
     this._overallOffersList = overallOffersList;
+    this._overallDestinationsList = overallDestinationsList;
 
     this._renderSort();
     this._renderPointsList();
@@ -63,7 +64,7 @@ export default class Trip {
 
   _renderPoint(point) {
     const pointPresenter = new PointPresenter(this._pointsListComponent, this._handleTaskChanged, this._handleModeChange);
-    pointPresenter.init(point, this._overallOffersList);
+    pointPresenter.init(point, this._overallOffersList, this._overallDestinationsList);
     this._pointPresenter[point.id] = pointPresenter;
   }
 
@@ -90,7 +91,7 @@ export default class Trip {
 
   _handleTaskChanged(updatedPoint) {
     this._points = updateItem(this._points, updatedPoint);
-    this._pointPresenter[updatedPoint.id].init(updatedPoint, this._overallOffersList);
+    this._pointPresenter[updatedPoint.id].init(updatedPoint, this._overallOffersList, this._overallDestinationsList);
   }
 
   _handleModeChange(currentPrinter) {
