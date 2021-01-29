@@ -1,6 +1,9 @@
 import dayjs from "dayjs";
 import {capitalizeFirstLetter} from "../utils/common.js";
 import SmartView from "./smart.js";
+import flatpickr from "flatpickr";
+
+import "flatpickr/dist/flatpickr.min.css";
 
 const BLANK_POINT = {
   "type": `flight`,
@@ -23,7 +26,7 @@ const formatAttributeValue = (offerTitle) => offerTitle.replace(/\s+/g, `-`).toL
 
 const createPointAvailableOfferTemplate = (userOffers, availableOffer) => `
   <div class="event__offer-selector">
-    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${formatAttributeValue(availableOffer.title)}-1" type="checkbox" name="event-offer-${formatAttributeValue(availableOffer.title)}" ${checkIsOfferChecked(userOffers, availableOffer) ? `checked` : ``}>
+    <input class="event__offer-checkbox  visually-hidden" id="event-offer-${formatAttributeValue(availableOffer.title)}-1" type="checkbox" name="event-offer-${formatAttributeValue(availableOffer.title)}" data-offer="${availableOffer.title}" ${checkIsOfferChecked(userOffers, availableOffer) ? `checked` : ``}>
     <label class="event__offer-label" for="event-offer-${formatAttributeValue(availableOffer.title)}-1">
       <span class="event__offer-title">${availableOffer.title}</span>
       &plus;&euro;&nbsp;
@@ -189,13 +192,23 @@ export default class PointEdit extends SmartView {
     this._data = PointEdit.parsePointToData(point, isEditing);
     this._overallOffersList = overallOffersList;
     this._overallDestinationsList = overallDestinationsList;
+    this._datepickers = {};
+
+    this._dateFromChangeHandler = this._dateFromChangeHandler.bind(this);
+    this._dateToChangeHandler = this._dateToChangeHandler.bind(this);
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._formCloseClickHandler = this._formCloseClickHandler.bind(this);
+    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
+    this._inputPriceHandler = this._inputPriceHandler.bind(this);
+    this._selectOffersHandler = this._selectOffersHandler.bind(this);
 
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setDateFromDatepicker();
+    this._setDateToDatepicker();
   }
 
   getTemplate() {
@@ -232,11 +245,21 @@ export default class PointEdit extends SmartView {
   }
 
   restoreHandlers() {
-    this._setInnerHandlers();
+    this.setDeleteClickHandler(this._callbacks.deleteClick);
     this.setFormSubmitHandler(this._callbacks.formSubmit);
+    this.setCloseFormClickHandler(this._callbacks.formClick);
+    this._setInnerHandlers();
+    this._setDateFromDatepicker();
+    this._setDateToDatepicker();
   }
 
   _setInnerHandlers() {
+    if (this.getElement().querySelector(`.event__rollup-btn`)) {
+      this.getElement()
+        .querySelector(`.event__rollup-btn`)
+        .addEventListener(`click`, this._formCloseClickHandler);
+    }
+
     this.getElement()
       .querySelector(`.event__type-group`)
       .addEventListener(`change`, this._typeChangeHandler);
@@ -244,6 +267,16 @@ export default class PointEdit extends SmartView {
     this.getElement()
       .querySelector(`#event-destination-1`)
       .addEventListener(`change`, this._destinationChangeHandler);
+
+    this.getElement()
+      .querySelector(`.event__input--price`)
+      .addEventListener(`change`, this._inputPriceHandler);
+
+    if (this.getElement().querySelector(`.event__details`)) {
+      this.getElement()
+        .querySelector(`.event__details`)
+        .addEventListener(`change`, this._selectOffersHandler);
+    }
   }
 
   _destinationChangeHandler(evt) {
@@ -270,5 +303,106 @@ export default class PointEdit extends SmartView {
       type: evt.target.value,
       offers: newOffers,
     });
+  }
+
+  reset(data) {
+    this.updateData(
+        PointEdit.parseDataToPoint(data)
+    );
+  }
+
+  _selectOffersHandler(evt) {
+    const availableOffers = findAvailableOffers(this._data.type, this._overallOffersList);
+    const newOffer = availableOffers.offers.find((el) => el.title === evt.target.dataset.offer);
+    if (evt.target.checked) {
+      this._data.offers.push(newOffer);
+    } else {
+      const index = this._data.offers.indexOf(newOffer);
+      this._data.offers.splice(index, 1);
+    }
+  }
+
+  _formCloseClickHandler() {
+    this._callbacks.formClick();
+    this.removeElement();
+  }
+
+  setCloseFormClickHandler(callback) {
+    this._callbacks.formClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._formCloseClickHandler);
+  }
+
+  _formDeleteClickHandler() {
+    this._callbacks.deleteClick();
+    this.removeElement();
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callbacks.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+  }
+
+  _inputPriceHandler({target}) {
+    if (Number.isFinite(+target.value)) {
+      this.updateData({
+        basePrice: +target.value
+      });
+    } else {
+      target.setCustomValidity(`Only numeric value allowed`);
+      return;
+    }
+  }
+
+  _setDateFromDatepicker() {
+    this._setupDatepicker(
+        `dateFrom`,
+        `#event-start-time-1`,
+        {
+          defaultDate: this._data.dateFrom,
+          minDate: this._data.dateFrom,
+          onChange: this._dateToChangeHandler
+        }
+    );
+  }
+
+  _setDateToDatepicker() {
+    this._setupDatepicker(
+        `dateTo`,
+        `#event-end-time-1`,
+        {
+          defaultDate: this._data.dateTo,
+          onChange: this._dateFromChangeHandler
+        }
+    );
+  }
+
+  _setupDatepicker(name, selector, additionalConfig) {
+    if (this._datepickers[name]) {
+      this._datepickers[name].destroy();
+    }
+
+    const defaults = {
+      enableTime: true,
+      dateFormat: `d/m/Y H:i`
+    };
+
+    const flatpickrConfig = Object.assign({},
+        defaults,
+        additionalConfig
+    );
+
+    this._datepickers[name] = flatpickr(this.getElement().querySelector(selector), flatpickrConfig);
+  }
+
+  _dateFromChangeHandler([userDateFrom]) {
+    this.updateData({
+      dateFrom: userDateFrom
+    }, true);
+  }
+
+  _dateToChangeHandler([userDateTo]) {
+    this.updateData({
+      dateTo: userDateTo
+    }, true);
   }
 }
