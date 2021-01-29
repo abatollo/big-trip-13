@@ -3,7 +3,7 @@ import {capitalizeFirstLetter} from "../utils/common.js";
 import SmartView from "./smart.js";
 import flatpickr from "flatpickr";
 
-import "../../node_modules/flatpickr/dist/flatpickr.min.css";
+import "flatpickr/dist/flatpickr.min.css";
 
 const BLANK_POINT = {
   "type": `flight`,
@@ -192,14 +192,14 @@ export default class PointEdit extends SmartView {
     this._data = PointEdit.parsePointToData(point, isEditing);
     this._overallOffersList = overallOffersList;
     this._overallDestinationsList = overallDestinationsList;
-    this._datepickerFrom = null;
-    this._datepickerTo = null;
+    this._datepickers = {};
 
-    this._dueFromDateChangeHandler = this._dueFromDateChangeHandler.bind(this);
-    this._dueToDateChangeHandler = this._dueToDateChangeHandler.bind(this);
+    this._dateFromChangeHandler = this._dateFromChangeHandler.bind(this);
+    this._dateToChangeHandler = this._dateToChangeHandler.bind(this);
 
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._formCloseClickHandler = this._formCloseClickHandler.bind(this);
+    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
     this._inputPriceHandler = this._inputPriceHandler.bind(this);
     this._selectOffersHandler = this._selectOffersHandler.bind(this);
 
@@ -207,8 +207,8 @@ export default class PointEdit extends SmartView {
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
 
     this._setInnerHandlers();
-    this._setFromDatepicker();
-    this._setToDatepicker();
+    this._setDateFromDatepicker();
+    this._setDateToDatepicker();
   }
 
   getTemplate() {
@@ -245,11 +245,12 @@ export default class PointEdit extends SmartView {
   }
 
   restoreHandlers() {
-    this._setInnerHandlers();
-    this._setFromDatepicker();
-    this._setToDatepicker();
     this.setDeleteClickHandler(this._callbacks.deleteClick);
     this.setFormSubmitHandler(this._callbacks.formSubmit);
+    this.setCloseFormClickHandler(this._callbacks.formClick);
+    this._setInnerHandlers();
+    this._setDateFromDatepicker();
+    this._setDateToDatepicker();
   }
 
   _setInnerHandlers() {
@@ -338,8 +339,7 @@ export default class PointEdit extends SmartView {
 
   setDeleteClickHandler(callback) {
     this._callbacks.deleteClick = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formCloseClickHandler); // переделать
-    // плюс закрытие по esc
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
   }
 
   _inputPriceHandler({target}) {
@@ -353,56 +353,56 @@ export default class PointEdit extends SmartView {
     }
   }
 
-  _setFromDatepicker() {
-    if (this._datepickerFrom) {
-      this._datepickerFrom.destroy();
-      this._datepickerFrom = null;
-    }
-
-    if (this._data.dateFrom) {
-      this._datepickerFrom = flatpickr(
-          this.getElement().querySelectorAll(`#event-start-time-1`),
-          {
-            "dateFormat": `d/m/y H:i`,
-            "defaultDate": this._data.dateFrom,
-            "enableTime": true,
-            "time_24hr": true,
-            "onChange": this._dueFromDateChangeHandler
-          }
-      );
-    }
+  _setDateFromDatepicker() {
+    this._setupDatepicker(
+        `dateFrom`,
+        `#event-start-time-1`,
+        {
+          defaultDate: this._data.dateFrom,
+          minDate: this._data.dateFrom,
+          onChange: this._dateToChangeHandler
+        }
+    );
   }
 
-  _setToDatepicker() {
-    if (this._datepickerTo) {
-      this._datepickerTo.destroy();
-      this._datepickerTo = null;
-    }
-
-    if (this._data.dateTo) {
-      this._datepickerTo = flatpickr(
-          this.getElement().querySelectorAll(`#event-end-time-1`),
-          {
-            "dateFormat": `d/m/y H:i`,
-            "defaultDate": this._data.dateTo,
-            "minDate": this._data.dateFrom,
-            "enableTime": true,
-            "time_24hr": true,
-            "onChange": this._dueToDateChangeHandler
-          }
-      );
-    }
+  _setDateToDatepicker() {
+    this._setupDatepicker(
+        `dateTo`,
+        `#event-end-time-1`,
+        {
+          defaultDate: this._data.dateTo,
+          onChange: this._dateFromChangeHandler
+        }
+    );
   }
 
-  _dueFromDateChangeHandler([userDateFrom]) {
+  _setupDatepicker(name, selector, additionalConfig) {
+    if (this._datepickers[name]) {
+      this._datepickers[name].destroy();
+    }
+
+    const defaults = {
+      enableTime: true,
+      dateFormat: `d/m/Y H:i`
+    };
+
+    const flatpickrConfig = Object.assign({},
+        defaults,
+        additionalConfig
+    );
+
+    this._datepickers[name] = flatpickr(this.getElement().querySelector(selector), flatpickrConfig);
+  }
+
+  _dateFromChangeHandler([userDateFrom]) {
     this.updateData({
       dateFrom: userDateFrom
-    });
+    }, true);
   }
 
-  _dueToDateChangeHandler([userDateTo]) {
+  _dateToChangeHandler([userDateTo]) {
     this.updateData({
       dateTo: userDateTo
-    });
+    }, true);
   }
 }

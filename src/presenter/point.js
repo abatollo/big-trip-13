@@ -23,6 +23,7 @@ export default class Point {
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleFormClose = this._handleFormClose.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
+    this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
   init(point, overallOffersList, overallDestinationsList) {
@@ -78,19 +79,21 @@ export default class Point {
   }
 
   _handleFormSubmit(task) {
-    this._replaceFormToPoint();
     this._changeData(task);
+    this._replaceFormToPoint();
   }
 
   _replacePointToForm() {
     replace(this._pointEditComponent, this._pointComponent);
     this._changeMode(this);
     this._mode = Mode.EDITING;
+    document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
   _replaceFormToPoint() {
     replace(this._pointComponent, this._pointEditComponent);
     this._mode = Mode.DEFAULT;
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
   _handleFavoriteClick() {
@@ -113,5 +116,14 @@ export default class Point {
     this._pointEditComponent.reset(this._point);
     this._replaceFormToPoint();
     this._pointEditComponent.removeElement();
+  }
+
+  _escKeyDownHandler(evt) {
+    if (evt.code === `Escape` || evt.code === `Esc`) {
+      evt.preventDefault();
+      this._pointEditComponent.reset(this._point);
+      this._replaceFormToPoint();
+      this._pointEditComponent.removeElement();
+    }
   }
 }
