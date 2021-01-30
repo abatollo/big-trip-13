@@ -3,6 +3,7 @@ import PointsListView from "../view/points-list.js";
 import NoPointView from "../view/no-point.js";
 import PointPresenter from "./point.js";
 import PointNewPresenter from "./point-new.js";
+import LoadingView from "../view/loading.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {SortType} from "../const.js";
 import {sortByPrice, sortByTime, sortByDate} from "../utils/sort.js";
@@ -10,16 +11,19 @@ import {filter} from "../utils/filter.js";
 import {UserAction, UpdateType, FilterType} from "../const.js";
 
 export default class Trip {
-  constructor(tripEventsContainer, dataModel, filterModel) {
+  constructor(tripEventsContainer, dataModel, filterModel, api) {
     this._tripEventsContainer = tripEventsContainer;
     this._dataModel = dataModel;
     this._filterModel = filterModel;
     this._pointPresenter = {};
     this._currentSortType = SortType.DAY;
+    this._isLoading = true;
+    this._api = api;
 
     this._sortComponent = new TripSortView();
     this._pointsListComponent = new PointsListView();
     this._noPointComponent = new NoPointView();
+    this._loadingComponent = new LoadingView();
 
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -50,7 +54,7 @@ export default class Trip {
   createPoint() {
     this._currentSortType = SortType.DAY;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this._pointNewPresenter.init(this._dataModel);
+    this._pointNewPresenter.init(null, this._dataModel);
   }
 
   _getPoints() {
@@ -78,7 +82,10 @@ export default class Trip {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this._dataModel.updatePoint(updateType, update);
+        this._api.updatePoint(update)
+          .then((response) => {
+            this._dataModel.updatePoint(updateType, response);
+          });
         break;
       case UserAction.ADD_POINT:
         this._dataModel.addPoint(updateType, update);
@@ -102,7 +109,17 @@ export default class Trip {
         this._clearBoard({resetSortType: true});
         this._renderBoard();
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
+        this._clearBoard();
+        this._renderBoard();
+        break;
     }
+  }
+
+  _renderLoading() {
+    render(this._tripEventsContainer, this._loadingComponent, RenderPosition.AFTERBEGIN);
   }
 
   _handleSortTypeChange(sortType) {

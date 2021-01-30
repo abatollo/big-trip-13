@@ -13,7 +13,8 @@ export const UserAction = {
 export const UpdateType = {
   PATCH: `PATCH`,
   MINOR: `MINOR`,
-  MAJOR: `MAJOR`
+  MAJOR: `MAJOR`,
+  INIT: `INIT`
 };
 
 export const FilterType = {
@@ -26,16 +27,3 @@ export const MenuItem = {
   TABLE: `Table`,
   STATS: `Stats`
 };
-
-export const types = [
-  `taxi`,
-  `bus`,
-  `train`,
-  `ship`,
-  `transport`,
-  `drive`,
-  `flight`,
-  `check-in`,
-  `sightseeing`,
-  `restaurant`,
-];
