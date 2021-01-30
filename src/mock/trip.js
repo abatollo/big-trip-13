@@ -197,7 +197,7 @@ const generateDateFrom = () => dayjs().add(getRandomInteger(1, HOUR_DIFFERENCE) 
 
 const generateDateTo = (dateFrom) => dayjs(dateFrom).add(getRandomInteger(1, MINUTE_DIFFERENCE), `minutes`).toISOString();
 
-const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 export const generatePoint = () => {
   const dateFromValue = generateDateFrom();

@@ -187,8 +187,11 @@ const createPointEditTemplate = (data, overallOffersList, overallDestinationsLis
 };
 
 export default class PointEdit extends SmartView {
-  constructor(point = BLANK_POINT, overallOffersList, overallDestinationsList, isEditing) {
+  constructor(point, overallOffersList, overallDestinationsList, isEditing) {
     super();
+    if (point === null) {
+      point = BLANK_POINT;
+    }
     this._data = PointEdit.parsePointToData(point, isEditing);
     this._overallOffersList = overallOffersList;
     this._overallDestinationsList = overallDestinationsList;
@@ -333,7 +336,7 @@ export default class PointEdit extends SmartView {
   }
 
   _formDeleteClickHandler() {
-    this._callbacks.deleteClick();
+    this._callbacks.deleteClick(PointEdit.parseDataToPoint(this._data));
     this.removeElement();
   }
 
