@@ -26,3 +26,16 @@ export const MenuItem = {
   TABLE: `Table`,
   STATS: `Stats`
 };
+
+export const types = [
+  `taxi`,
+  `bus`,
+  `train`,
+  `ship`,
+  `transport`,
+  `drive`,
+  `flight`,
+  `check-in`,
+  `sightseeing`,
+  `restaurant`,
+];
