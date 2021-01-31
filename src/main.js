@@ -5,7 +5,6 @@ import {DataModel} from "./model/data.js";
 import {FilterModel} from "./model/filter.js"
 import {TripPresenter} from "./presenter/trip.js";
 import {FilterPresenter} from "./presenter/filter.js";
-import {TripInfoView} from "./view/trip-info.js";
 import {TripTabsView} from "./view/trip-tabs.js";
 import {StatisticsView} from "./view/statistics.js";
 
@@ -16,10 +15,9 @@ const api = new Api(END_POINT, AUTHORIZATION);
 const dataModel = new DataModel();
 const filterModel = new FilterModel();
 
-const siteTripMainElement = document.querySelector(`.trip-main`);
-const siteTripControlsElement = siteTripMainElement.querySelector(`.trip-controls`);
-const siteTripControlsFirstHeadingElement = siteTripControlsElement.querySelector(`h2:first-of-type`);
-const siteTripControlsLastHeadingElement = siteTripControlsElement.querySelector(`h2:last-of-type`);
+const tripControlsElement = document.querySelector(`.trip-controls`);
+const tripControlsFirstChildElement = tripControlsElement.firstChild;
+const tripControlsLastChildElement = tripControlsElement.lastChild;
 const tripTabsElement = new TripTabsView();
 
 api.getPoints()
@@ -31,7 +29,7 @@ api.getPoints()
   })
   .finally(() => {
     tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
-    render(siteTripControlsFirstHeadingElement, tripTabsElement.getElement(), RenderPosition.AFTEREND);
+    render(tripControlsFirstChildElement, tripTabsElement.getElement(), RenderPosition.AFTEREND);
   });
 
 api.getValues(`/destinations`)
@@ -50,9 +48,7 @@ api.getValues(`/offers`)
     dataModel.setTypes(UpdateType.INIT, []);
   });
 
-render(siteTripMainElement, new TripInfoView(), RenderPosition.AFTERBEGIN);
-
-const filterPresenter = new FilterPresenter(siteTripControlsLastHeadingElement, filterModel, dataModel);
+const filterPresenter = new FilterPresenter(tripControlsLastChildElement, filterModel, dataModel);
 filterPresenter.init();
 
 const siteTripEventsElement = document.querySelector(`.trip-events`);

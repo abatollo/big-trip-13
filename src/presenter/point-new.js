@@ -23,8 +23,8 @@ class PointNewPresenter {
     }
 
     this._formElement = new PointEditView(null, this._types, this._cities, true);
-    this._formElement.setFormSubmitHandler(this._handleFormSubmit);
-    this._formElement.setDeleteClickHandler(this._handleDeleteClick);
+    this._formElement.setSubmitHandler(this._handleFormSubmit);
+    this._formElement.setDeleteHandler(this._handleDeleteClick);
 
     render(this._pointListElement, this._formElement, RenderPosition.AFTERBEGIN);
 

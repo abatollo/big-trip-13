@@ -199,11 +199,11 @@ class PointEditView extends SmartView {
     this._dateFromChangeHandler = this._dateFromChangeHandler.bind(this);
     this._dateToChangeHandler = this._dateToChangeHandler.bind(this);
 
-    this._formSubmitHandler = this._formSubmitHandler.bind(this);
-    this._formCloseClickHandler = this._formCloseClickHandler.bind(this);
-    this._formDeleteClickHandler = this._formDeleteClickHandler.bind(this);
-    this._inputPriceHandler = this._inputPriceHandler.bind(this);
-    this._selectOffersHandler = this._selectOffersHandler.bind(this);
+    this._formSubmitHandler = this._submitHandler.bind(this);
+    this._formCloseClickHandler = this._closeHandler.bind(this);
+    this._formDeleteClickHandler = this._deleteHandler.bind(this);
+    this._inputPriceHandler = this._priceChangeHandler.bind(this);
+    this._selectOffersHandler = this._offersChangeHandler.bind(this);
 
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
@@ -223,27 +223,27 @@ class PointEditView extends SmartView {
     );
   }
 
-  setFormSubmitHandler(callback) {
+  setSubmitHandler(callback) {
     this._callbacks.formSubmit = callback;
-    this.getElement().addEventListener(`submit`, this._formSubmitHandler);
+    this.getElement().addEventListener(`submit`, this._submitHandler);
   }
 
-  setCloseFormClickHandler(callback) {
+  setCloseHandler(callback) {
     this._callbacks.formClick = callback;
     if (this.getElement().querySelector(`.event__rollup-btn`)) {
-      this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._formCloseClickHandler);
+      this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._closeHandler);
     }
   }
 
-  setDeleteClickHandler(callback) {
+  setDeleteHandler(callback) {
     this._callbacks.deleteClick = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteHandler);
   }
 
   restoreHandlers() {
-    this.setDeleteClickHandler(this._callbacks.deleteClick);
-    this.setFormSubmitHandler(this._callbacks.formSubmit);
-    this.setCloseFormClickHandler(this._callbacks.formClick);
+    this.setDeleteHandler(this._callbacks.deleteClick);
+    this.setSubmitHandler(this._callbacks.formSubmit);
+    this.setCloseHandler(this._callbacks.formClick);
     this._setInnerHandlers();
     this._setDateFromDatepicker();
     this._setDateToDatepicker();
@@ -273,24 +273,23 @@ class PointEditView extends SmartView {
     );
   }
 
-  _formSubmitHandler(evt) {
+  _submitHandler(evt) {
     evt.preventDefault();
 
     this._callbacks.formSubmit(PointEditView.parsePointToData(this._data, this._data.isEditing));
   }
 
-  _formCloseClickHandler() {
+  _closeHandler() {
     this._callbacks.formClick();
     this.removeElement();
   }
 
-  _setInnerHandlers() {
-    if (this.getElement().querySelector(`.event__rollup-btn`)) {
-      this.getElement()
-        .querySelector(`.event__rollup-btn`)
-        .addEventListener(`click`, this._formCloseClickHandler);
-    }
+  _deleteHandler() {
+    this._callbacks.deleteClick(PointEditView.parseDataToPoint(this._data));
+    this.removeElement();
+  }
 
+  _setInnerHandlers() {
     this.getElement()
       .querySelector(`.event__type-group`)
       .addEventListener(`change`, this._typeChangeHandler);
@@ -301,13 +300,21 @@ class PointEditView extends SmartView {
 
     this.getElement()
       .querySelector(`.event__input--price`)
-      .addEventListener(`change`, this._inputPriceHandler);
+      .addEventListener(`change`, this._priceChangeHandler);
 
     if (this.getElement().querySelector(`.event__details`)) {
       this.getElement()
         .querySelector(`.event__details`)
-        .addEventListener(`change`, this._selectOffersHandler);
+        .addEventListener(`change`, this._offersChangeHandler);
     }
+  }
+
+  _typeChangeHandler(evt) {
+    const newOffers = this._overallOffersList.find((elem) => elem.type.toLowerCase() === evt.target.value).offers;
+    this.updateData({
+      type: evt.target.value,
+      offers: newOffers,
+    });
   }
 
   _destinationChangeHandler(evt) {
@@ -328,31 +335,7 @@ class PointEditView extends SmartView {
     }
   }
 
-  _typeChangeHandler(evt) {
-    const newOffers = this._overallOffersList.find((elem) => elem.type.toLowerCase() === evt.target.value).offers;
-    this.updateData({
-      type: evt.target.value,
-      offers: newOffers,
-    });
-  }
-
-  _selectOffersHandler(evt) {
-    const availableOffers = findAvailableOffers(this._data.type, this._overallOffersList);
-    const newOffer = availableOffers.offers.find((el) => el.title === evt.target.dataset.offer);
-    if (evt.target.checked) {
-      this._data.offers.push(newOffer);
-    } else {
-      const index = this._data.offers.indexOf(newOffer);
-      this._data.offers.splice(index, 1);
-    }
-  }
-
-  _formDeleteClickHandler() {
-    this._callbacks.deleteClick(PointEditView.parseDataToPoint(this._data));
-    this.removeElement();
-  }
-
-  _inputPriceHandler({target}) {
+  _priceChangeHandler({target}) {
     if (Number.isFinite(+target.value)) {
       this.updateData({
         basePrice: +target.value
@@ -360,6 +343,17 @@ class PointEditView extends SmartView {
     } else {
       target.setCustomValidity(`Only numeric value allowed`);
       return;
+    }
+  }
+
+  _offersChangeHandler(evt) {
+    const availableOffers = findAvailableOffers(this._data.type, this._overallOffersList);
+    const newOffer = availableOffers.offers.find((el) => el.title === evt.target.dataset.offer);
+    if (evt.target.checked) {
+      this._data.offers.push(newOffer);
+    } else {
+      const index = this._data.offers.indexOf(newOffer);
+      this._data.offers.splice(index, 1);
     }
   }
 

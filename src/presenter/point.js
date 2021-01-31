@@ -46,9 +46,9 @@ class PointPresenter {
 
     this._pointElement.setEditClickHandler(this._handleOpenClick);
     this._pointElement.setFavoriteClickHandler(this._handleFavoriteClick);
-    this._pointEditElement.setFormSubmitHandler(this._handleFormSubmit);
-    this._pointEditElement.setCloseFormClickHandler(this._handleFormClose);
-    this._pointEditElement.setDeleteClickHandler(this._handleDeleteClick);
+    this._pointEditElement.setSubmitHandler(this._handleFormSubmit);
+    this._pointEditElement.setCloseHandler(this._handleFormClose);
+    this._pointEditElement.setDeleteHandler(this._handleDeleteClick);
 
     if (prevPointElement === null && prevPointEditElement === null) {
       render(this._pointsListContainer, this._pointElement, RenderPosition.BEFOREEND);
