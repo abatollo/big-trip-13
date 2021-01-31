@@ -1,11 +1,7 @@
 import Chart from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import SmartView from "./smart.js";
-import {
-  divideCostsByTypes,
-  divideByTypes,
-  divideDurationsByTypes
-} from "../utils/statistics.js";
+import {SmartView} from "./smart.js";
+import {divideCostsByTypes, divideByTypes, divideDurationsByTypes} from "../utils/statistics.js";
 
 const BAR_HEIGHT = 55;
 
@@ -79,9 +75,8 @@ const renderChart = (points, canvasCtx, title, label) => {
   });
 };
 
-const createStatisticsTemplate = () => {
-
-  return `<section class="statistics">
+const createStatisticsTemplate = () => `
+  <section class="statistics">
     <h2 class="visually-hidden">Trip statistics</h2>
 
     <div class="statistics__item statistics__item--money">
@@ -95,10 +90,10 @@ const createStatisticsTemplate = () => {
     <div class="statistics__item statistics__item--time-spend">
       <canvas class="statistics__chart  statistics__chart--time" width="900"></canvas>
     </div>
-  </section>`;
-};
+  </section>
+`;
 
-export default class Statistics extends SmartView {
+class StatisticsView extends SmartView {
   constructor(points) {
     super();
 
@@ -111,6 +106,10 @@ export default class Statistics extends SmartView {
     this._setCharts();
   }
 
+  getTemplate() {
+    return createStatisticsTemplate();
+  }
+
   removeElement() {
     super.removeElement();
 
@@ -119,10 +118,6 @@ export default class Statistics extends SmartView {
       this._typeChart = null;
       this._timeSpendChart = null;
     }
-  }
-
-  getTemplate() {
-    return createStatisticsTemplate();
   }
 
   _setCharts() {
@@ -145,3 +140,5 @@ export default class Statistics extends SmartView {
     this._timeSpendChart = renderChart(durations, timeSpendCtx, `TIME SPENT`, `H`);
   }
 }
+
+export {StatisticsView};

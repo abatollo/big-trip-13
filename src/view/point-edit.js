@@ -1,9 +1,8 @@
 import dayjs from "dayjs";
-import {capitalizeFirstLetter} from "../utils/common.js";
-import SmartView from "./smart.js";
 import flatpickr from "flatpickr";
-
 import "flatpickr/dist/flatpickr.min.css";
+import {capitalizeFirstLetter} from "../utils/common.js";
+import {SmartView} from "./smart.js";
 
 const BLANK_POINT = {
   "type": `flight`,
@@ -57,7 +56,7 @@ const createPointPhotosTemplate = (photos) => `
         ${photos.map((photo) => createPointPhotoTemplate(photo)).join(``)}
       </div>
     </div>
-    ` : ``}
+  ` : ``}
 `;
 
 const createPointRollupBtn = () => `
@@ -73,8 +72,8 @@ const createPointDestinationOption = (destination) => `<option value="${destinat
 const createPointEditTemplate = (data, overallOffersList, overallDestinationsList) => {
   const {type, destination, dateFrom, dateTo, basePrice, offers, isEditing} = data;
 
-  return (
-    `<li class="trip-events__item">
+  return `
+    <li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
@@ -182,17 +181,17 @@ const createPointEditTemplate = (data, overallOffersList, overallDestinationsLis
           </section>
         </section>
       </form>
-    </li>`
-  );
+    </li>
+  `;
 };
 
-export default class PointEdit extends SmartView {
+class PointEditView extends SmartView {
   constructor(point, overallOffersList, overallDestinationsList, isEditing) {
     super();
     if (point === null) {
       point = BLANK_POINT;
     }
-    this._data = PointEdit.parsePointToData(point, isEditing);
+    this._data = PointEditView.parsePointToData(point, isEditing);
     this._overallOffersList = overallOffersList;
     this._overallDestinationsList = overallDestinationsList;
     this._datepickers = {};
@@ -218,10 +217,10 @@ export default class PointEdit extends SmartView {
     return createPointEditTemplate(this._data, this._overallOffersList, this._overallDestinationsList);
   }
 
-  _formSubmitHandler(evt) {
-    evt.preventDefault();
-
-    this._callbacks.formSubmit(PointEdit.parsePointToData(this._data));
+  reset(data) {
+    this.updateData(
+        PointEditView.parseDataToPoint(data)
+    );
   }
 
   setFormSubmitHandler(callback) {
@@ -229,22 +228,16 @@ export default class PointEdit extends SmartView {
     this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
 
-  static parsePointToData(point, isEditing) {
-    return Object.assign(
-        {},
-        point,
-        {
-          isEditing
-        }
-    );
+  setCloseFormClickHandler(callback) {
+    this._callbacks.formClick = callback;
+    if (this.getElement().querySelector(`.event__rollup-btn`)) {
+      this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._formCloseClickHandler);
+    }
   }
 
-  static parseDataToPoint(data) {
-    delete data.isEditing;
-    return Object.assign(
-        {},
-        data
-    );
+  setDeleteClickHandler(callback) {
+    this._callbacks.deleteClick = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
   }
 
   restoreHandlers() {
@@ -254,6 +247,41 @@ export default class PointEdit extends SmartView {
     this._setInnerHandlers();
     this._setDateFromDatepicker();
     this._setDateToDatepicker();
+  }
+
+  static parsePointToData(point, isEditing) {
+    return Object.assign(
+        {},
+        point,
+        {
+          isEditing,
+          isSaving: false,
+          isDeleting: false,
+          isDisabled: false
+        }
+    );
+  }
+
+  static parseDataToPoint(data) {
+    delete data.isEditing;
+    delete data.isSaving;
+    delete data.isDeleting;
+    delete data.isDisabled;
+    return Object.assign(
+        {},
+        data
+    );
+  }
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+
+    this._callbacks.formSubmit(PointEditView.parsePointToData(this._data, this._data.isEditing));
+  }
+
+  _formCloseClickHandler() {
+    this._callbacks.formClick();
+    this.removeElement();
   }
 
   _setInnerHandlers() {
@@ -308,12 +336,6 @@ export default class PointEdit extends SmartView {
     });
   }
 
-  reset(data) {
-    this.updateData(
-        PointEdit.parseDataToPoint(data)
-    );
-  }
-
   _selectOffersHandler(evt) {
     const availableOffers = findAvailableOffers(this._data.type, this._overallOffersList);
     const newOffer = availableOffers.offers.find((el) => el.title === evt.target.dataset.offer);
@@ -325,24 +347,9 @@ export default class PointEdit extends SmartView {
     }
   }
 
-  _formCloseClickHandler() {
-    this._callbacks.formClick();
-    this.removeElement();
-  }
-
-  setCloseFormClickHandler(callback) {
-    this._callbacks.formClick = callback;
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._formCloseClickHandler);
-  }
-
   _formDeleteClickHandler() {
-    this._callbacks.deleteClick(PointEdit.parseDataToPoint(this._data));
+    this._callbacks.deleteClick(PointEditView.parseDataToPoint(this._data));
     this.removeElement();
-  }
-
-  setDeleteClickHandler(callback) {
-    this._callbacks.deleteClick = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._formDeleteClickHandler);
   }
 
   _inputPriceHandler({target}) {
@@ -359,7 +366,7 @@ export default class PointEdit extends SmartView {
   _setDateFromDatepicker() {
     this._setupDatepicker(
         `dateFrom`,
-        `#event-start-time-1`,
+        `[name="event-start-time"]`,
         {
           defaultDate: this._data.dateFrom,
           minDate: this._data.dateFrom,
@@ -371,7 +378,7 @@ export default class PointEdit extends SmartView {
   _setDateToDatepicker() {
     this._setupDatepicker(
         `dateTo`,
-        `#event-end-time-1`,
+        `[name="event-end-time"]`,
         {
           defaultDate: this._data.dateTo,
           onChange: this._dateFromChangeHandler
@@ -409,3 +416,5 @@ export default class PointEdit extends SmartView {
     }, true);
   }
 }
+
+export {PointEditView};

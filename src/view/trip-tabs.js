@@ -1,14 +1,14 @@
-import AbstractView from "./abstract.js";
+import {AbstractView} from "./abstract.js";
 import {MenuItem} from "../const.js";
 
-const createMenuTemplate = () => {
-  return `<nav class="trip-controls__trip-tabs  trip-tabs">
-  <a class="trip-tabs__btn trip-tabs__btn--active" href="#" data-menu-type="${MenuItem.TABLE}">${MenuItem.TABLE}</a>
-  <a class="trip-tabs__btn" href="#" data-menu-type="${MenuItem.STATS}">${MenuItem.STATS}</a>
-</nav>`;
-};
+const createMenuTemplate = () => `
+  <nav class="trip-controls__trip-tabs  trip-tabs">
+    <a class="trip-tabs__btn trip-tabs__btn--active" href="#" data-menu-type="${MenuItem.TABLE}">${MenuItem.TABLE}</a>
+    <a class="trip-tabs__btn" href="#" data-menu-type="${MenuItem.STATS}">${MenuItem.STATS}</a>
+  </nav>
+`;
 
-export default class SiteMenu extends AbstractView {
+class TripTabsView extends AbstractView {
   constructor() {
     super();
 
@@ -18,15 +18,6 @@ export default class SiteMenu extends AbstractView {
 
   getTemplate() {
     return createMenuTemplate();
-  }
-
-  _menuClickHandler(evt) {
-    if (evt.target.tagName !== `A`) {
-      return;
-    }
-
-    evt.preventDefault();
-    this._callbacks.menuClick(evt.target.dataset.menuType);
   }
 
   setMenuClickHandler(callback) {
@@ -41,4 +32,15 @@ export default class SiteMenu extends AbstractView {
       item.classList.add(`trip-tabs__btn--active`);
     }
   }
+
+  _menuClickHandler(evt) {
+    if (evt.target.tagName !== `A`) {
+      return;
+    }
+
+    evt.preventDefault();
+    this._callbacks.menuClick(evt.target.dataset.menuType);
+  }
 }
+
+export {TripTabsView};

@@ -1,13 +1,11 @@
-import AbstractView from "./abstract.js";
+import {AbstractView} from "./abstract.js";
 
-const createNoTaskTemplate = () => {
-  return `<p class="board__no-tasks">
-    Loading...
-  </p>`;
-};
+const createLoadingTemplate = () => `<p class="board__no-tasks">Loading...</p>`;
 
-export default class Loading extends AbstractView {
+class LoadingView extends AbstractView {
   getTemplate() {
-    return createNoTaskTemplate();
+    return createLoadingTemplate();
   }
 }
+
+export {LoadingView};

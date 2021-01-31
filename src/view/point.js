@@ -1,6 +1,7 @@
-import AbstractView from "./abstract.js";
 import dayjs from "dayjs";
 import {capitalizeFirstLetter} from "../utils/common.js";
+import {AbstractView} from "./abstract.js";
+
 const MINUTES_IN_HOUR = 60;
 
 const createPointOfferTemplate = (offer) => `
@@ -17,7 +18,7 @@ const createPointOffersTemplate = (offers) => `
     <ul class="event__selected-offers">
       ${offers.map((offer) => createPointOfferTemplate(offer)).join(``)}
     </ul>
-    ` : ``}
+  ` : ``}
 `;
 
 const getDuration = (to, from) => {
@@ -41,8 +42,8 @@ const createPointTemplate = (point) => {
     ? `event__favorite-btn--active`
     : ``;
 
-  return (
-    `<li class="trip-events__item">
+  return `
+    <li class="trip-events__item">
       <div class="event">
         <time class="event__date" datetime="${dayjs(point.dateFrom).format(`YYYY-MM-DD`)}">${dayjs(point.dateFrom).format(`MMM D`)}</time>
         <div class="event__type">
@@ -71,11 +72,11 @@ const createPointTemplate = (point) => {
           <span class="visually-hidden">Open event</span>
         </button>
       </div>
-    </li>`
-  );
+    </li>
+  `;
 };
 
-export default class Point extends AbstractView {
+class PointView extends AbstractView {
   constructor(point) {
     super();
     this._point = point;
@@ -88,15 +89,6 @@ export default class Point extends AbstractView {
     return createPointTemplate(this._point);
   }
 
-  _editClickHandler(evt) {
-    evt.preventDefault();
-    this._callbacks.editClick();
-  }
-
-  _favoriteClickHandler() {
-    this._callbacks.favoriteClick();
-  }
-
   setEditClickHandler(callback) {
     this._callbacks.editClick = callback;
 
@@ -107,4 +99,15 @@ export default class Point extends AbstractView {
     this._callbacks.favoriteClick = callback;
     this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
   }
+
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callbacks.editClick();
+  }
+
+  _favoriteClickHandler() {
+    this._callbacks.favoriteClick();
+  }
 }
+
+export {PointView};

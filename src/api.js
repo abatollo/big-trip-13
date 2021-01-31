@@ -1,8 +1,10 @@
-import PointsModel from "./model/data.js";
+import {DataModel} from "./model/data.js";
 
 const Method = {
   GET: `GET`,
-  PUT: `PUT`
+  PUT: `PUT`,
+  POST: `POST`,
+  DELETE: `DELETE`
 };
 
 const SuccessHTTPStatusRange = {
@@ -10,7 +12,7 @@ const SuccessHTTPStatusRange = {
   MAX: 299
 };
 
-export default class Api {
+class Api {
   constructor(endPoint, authorization) {
     this._endPoint = endPoint;
     this._authorization = authorization;
@@ -21,41 +23,45 @@ export default class Api {
         {
           url: `points`
         })
-      .then((points) => points.map(PointsModel.adaptToClient));
+      .then(Api.toJSON)
+      .then((points) => points.map(DataModel.adaptToClient));
   }
 
   getValues(pathValue) {
     return this._load(
         {
           url: pathValue
-        });
+        })
+        .then(Api.toJSON);
+  }
+
+  addPoint(point) {
+    return this._load({
+      url: `points`,
+      method: Method.POST,
+      body: JSON.stringify(DataModel.adaptToServer(point)),
+      headers: new Headers({"Content-Type": `application/json`})
+    })
+      .then(Api.toJSON)
+      .then(DataModel.adaptToClient);
+  }
+
+  deletePoint(point) {
+    return this._load({
+      url: `points/${point.id}`,
+      method: Method.DELETE
+    });
   }
 
   updatePoint(point) {
     return this._load({
       url: `points/${point.id}`,
       method: Method.PUT,
-      body: JSON.stringify(PointsModel.adaptToServer(point)),
+      body: JSON.stringify(DataModel.adaptToServer(point)),
       headers: new Headers({"Content-Type": `application/json`})
     })
-      .then(PointsModel.adaptToClient);
-  }
-
-  _load({
-    url,
-    method = Method.GET,
-    body = null,
-    headers = new Headers()
-  }) {
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(
-        `${this._endPoint}/${url}`,
-        {method, body, headers}
-    )
-      .then(Api.checkStatus)
       .then(Api.toJSON)
-      .catch(Api.catchError);
+      .then(DataModel.adaptToClient);
   }
 
   static checkStatus(response) {
@@ -76,4 +82,22 @@ export default class Api {
   static catchError(err) {
     throw err;
   }
+
+  _load({
+    url,
+    method = Method.GET,
+    body = null,
+    headers = new Headers()
+  }) {
+    headers.append(`Authorization`, this._authorization);
+
+    return fetch(
+        `${this._endPoint}/${url}`,
+        {method, body, headers}
+    )
+      .then(Api.checkStatus)
+      .catch(Api.catchError);
+  }
 }
+
+export {Api};

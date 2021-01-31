@@ -1,4 +1,4 @@
-import AbstractView from "./abstract.js";
+import {AbstractView} from "./abstract.js";
 
 const createFilterTemplate = (filter, currentFilterType) => `
   <div class="trip-filters__filter">
@@ -7,14 +7,14 @@ const createFilterTemplate = (filter, currentFilterType) => `
   </div>
 `;
 
-const createFiltersTemplate = (filters, currentFilter) => (
-  `<form class="trip-filters" action="#" method="get">
+const createFiltersTemplate = (filters, currentFilter) => `
+  <form class="trip-filters" action="#" method="get">
     ${filters.map((filter) => createFilterTemplate(filter.type, currentFilter)).join(`\n`)}
     <button class="visually-hidden" type="submit">Accept filter</button>
-  </form>`
-);
+  </form>
+`;
 
-export default class Filter extends AbstractView {
+class FilterView extends AbstractView {
   constructor(filters, currentFilter) {
     super();
     this._filters = filters;
@@ -27,13 +27,15 @@ export default class Filter extends AbstractView {
     return createFiltersTemplate(this._filters, this._currentFilter);
   }
 
-  _filterChangeHandler(evt) {
-    evt.preventDefault();
-    this._callbacks.filterChange(evt.target.value);
-  }
-
   setFilterTypeChangeHandler(callback) {
     this._callbacks.filterChange = callback;
     this.getElement().addEventListener(`change`, this._filterChangeHandler);
   }
+
+  _filterChangeHandler(evt) {
+    evt.preventDefault();
+    this._callbacks.filterChange(evt.target.value);
+  }
 }
+
+export {FilterView};

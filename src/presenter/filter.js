@@ -1,8 +1,8 @@
-import FilterView from "../view/trip-filters.js";
-import {render, replace, remove, RenderPosition} from "../utils/render.js";
+import {FilterView} from "../view/trip-filters.js";
+import {RenderPosition, render, replace, remove} from "../utils/render.js";
 import {FilterType, UpdateType} from "../const.js";
 
-export default class Filter {
+class FilterPresenter {
   constructor(filterContainer, filterModel, pointsModel) {
     this._filterContainer = filterContainer;
     this._filterModel = filterModel;
@@ -62,3 +62,5 @@ export default class Filter {
     ];
   }
 }
+
+export {FilterPresenter};
