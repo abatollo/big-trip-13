@@ -1,6 +1,7 @@
 import PointView from "../view/point.js";
 import PointEditView from "../view/point-edit.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
+import {UserAction, UpdateType} from "../const.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -26,14 +27,16 @@ export default class Point {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init(point, overallOffersList, overallDestinationsList) {
+  init(point, model) {
     this._point = point;
+    this._cities = model.getCities();
+    this._types = model.getTypes();
 
     const prevPointComponent = this._pointComponent;
     const prevPointEditComponent = this._pointEditComponent;
 
     this._pointComponent = new PointView(this._point);
-    this._pointEditComponent = new PointEditView(this._point, overallOffersList, overallDestinationsList, true);
+    this._pointEditComponent = new PointEditView(this._point, this._types, this._cities, true);
 
     this._pointComponent.setEditClickHandler(this._handleOpenClick);
     this._pointComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -78,11 +81,6 @@ export default class Point {
     this._replaceFormToPoint();
   }
 
-  _handleFormSubmit(task) {
-    this._changeData(task);
-    this._replaceFormToPoint();
-  }
-
   _replacePointToForm() {
     replace(this._pointEditComponent, this._pointComponent);
     this._changeMode(this);
@@ -98,6 +96,8 @@ export default class Point {
 
   _handleFavoriteClick() {
     this._changeData(
+        UserAction.UPDATE_POINT,
+        UpdateType.MINOR,
         Object
         .assign(
             {},
@@ -112,10 +112,21 @@ export default class Point {
     this._pointEditComponent.removeElement();
   }
 
-  _handleDeleteClick() {
-    this._pointEditComponent.reset(this._point);
+  _handleDeleteClick(point) {
+    this._changeData(
+        UserAction.DELETE_POINT,
+        UpdateType.MINOR,
+        point
+    );
+  }
+
+  _handleFormSubmit(point) {
+    this._changeData(
+        UserAction.UPDATE_POINT,
+        UpdateType.PATCH,
+        point
+    );
     this._replaceFormToPoint();
-    this._pointEditComponent.removeElement();
   }
 
   _escKeyDownHandler(evt) {
