@@ -42,8 +42,8 @@ const createPointTemplate = (point) => {
     ? `event__favorite-btn--active`
     : ``;
 
-  return `
-    <li class="trip-events__item">
+  return (
+    `<li class="trip-events__item">
       <div class="event">
         <time class="event__date" datetime="${dayjs(point.dateFrom).format(`YYYY-MM-DD`)}">${dayjs(point.dateFrom).format(`MMM D`)}</time>
         <div class="event__type">
@@ -73,7 +73,7 @@ const createPointTemplate = (point) => {
         </button>
       </div>
     </li>
-  `;
+  `);
 };
 
 class PointView extends AbstractView {

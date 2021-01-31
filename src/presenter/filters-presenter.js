@@ -3,37 +3,37 @@ import {RenderPosition, render, replace, remove} from "../utils/render.js";
 import {FilterType, UpdateType} from "../const.js";
 
 class FiltersPresenter {
-  constructor(filterContainer, filterModel, pointsModel) {
-    this._filterContainer = filterContainer;
-    this._filterModel = filterModel;
-    this._pointsModel = pointsModel;
+  constructor(filtersContainer, filtersModel, dataModel) {
+    this._filtersContainer = filtersContainer;
+    this._filtersModel = filtersModel;
+    this._dataModel = dataModel;
     this._currentFilter = null;
 
-    this._filterComponent = null;
+    this._filterElement = null;
 
     this._handleModelEvent = this._handleModelEvent.bind(this);
     this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
 
-    this._pointsModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
+    this._dataModel.addObserver(this._handleModelEvent);
+    this._filtersModel.addObserver(this._handleModelEvent);
   }
 
   init() {
-    this._currentFilter = this._filterModel.getFilter();
+    this._currentFilter = this._filtersModel.getFilter();
 
     const filters = this._getFilters();
-    const prevFilterView = this._filterComponent;
+    const prevFilterElement = this._filterElement;
 
-    this._filterComponent = new FiltersView(filters, this._currentFilter);
-    this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
+    this._filterElement = new FiltersView(filters, this._currentFilter);
+    this._filterElement.setFilterTypeChangeHandler(this._handleFilterTypeChange);
 
-    if (prevFilterView === null) {
-      render(this._filterContainer, this._filterComponent, RenderPosition.AFTEREND);
+    if (prevFilterElement === null) {
+      render(this._filtersContainer, this._filterElement, RenderPosition.AFTEREND);
       return;
     }
 
-    replace(this._filterComponent, prevFilterView);
-    remove(prevFilterView);
+    replace(this._filterElement, prevFilterElement);
+    remove(prevFilterElement);
   }
 
   _handleModelEvent() {
@@ -45,7 +45,7 @@ class FiltersPresenter {
       return;
     }
 
-    this._filterModel.setFilter(UpdateType.MAJOR, filterType);
+    this._filtersModel.setFilter(UpdateType.MAJOR, filterType);
   }
 
   _getFilters() {

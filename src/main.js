@@ -48,13 +48,12 @@ api.getValues(`/offers`)
     dataModel.setTypes(UpdateType.INIT, []);
   });
 
-const filterPresenter = new FiltersPresenter(tripControlsLastChildElement, filterModel, dataModel);
-filterPresenter.init();
+const filtersPresenter = new FiltersPresenter(tripControlsLastChildElement, filterModel, dataModel);
+filtersPresenter.init();
 
-const siteTripEventsElement = document.querySelector(`.trip-events`);
+const tripEventsElement = document.querySelector(`.trip-events`);
 
-const tripPresenter = new TripPresenter(siteTripEventsElement, dataModel, filterModel, api);
-console.log(tripPresenter);
+const tripPresenter = new TripPresenter(tripEventsElement, dataModel, filterModel, api);
 tripPresenter.init();
 
 document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, () => {
@@ -81,7 +80,7 @@ const handleSiteMenuClick = (menuItem) => {
     case MenuItem.STATS:
       tripPresenter.destroy();
       statisticsElement = new StatisticsView(dataModel.getPoints());
-      render(siteTripEventsElement.firstChild, statisticsElement, RenderPosition.AFTEREND);
+      render(tripEventsElement.firstChild, statisticsElement, RenderPosition.AFTEREND);
       tripTabsElement.getElement().querySelector(`[data-menu-type="${MenuItem.TABLE}"]`).classList.remove(`trip-tabs__btn--active`);
       tripTabsElement.setMenuItem(MenuItem.STATS);
       break;

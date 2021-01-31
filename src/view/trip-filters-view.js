@@ -7,12 +7,12 @@ const createFilterTemplate = (filter, currentFilterType) => `
   </div>
 `;
 
-const createFiltersTemplate = (filters, currentFilter) => `
-  <form class="trip-filters" action="#" method="get">
+const createFiltersTemplate = (filters, currentFilter) => (
+  `<form class="trip-filters" action="#" method="get">
     ${filters.map((filter) => createFilterTemplate(filter.type, currentFilter)).join(`\n`)}
     <button class="visually-hidden" type="submit">Accept filter</button>
   </form>
-`;
+`);
 
 class FiltersView extends AbstractView {
   constructor(filters, currentFilter) {

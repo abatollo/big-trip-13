@@ -1,8 +1,8 @@
 import {AbstractView} from "./abstract-view.js";
 import {MenuItem} from "../const.js";
 
-const createMenuTemplate = () => `
-  <nav class="trip-controls__trip-tabs  trip-tabs">
+const createMenuTemplate = () =>
+  `<nav class="trip-controls__trip-tabs  trip-tabs">
     <a class="trip-tabs__btn trip-tabs__btn--active" href="#" data-menu-type="${MenuItem.TABLE}">${MenuItem.TABLE}</a>
     <a class="trip-tabs__btn" href="#" data-menu-type="${MenuItem.STATS}">${MenuItem.STATS}</a>
   </nav>

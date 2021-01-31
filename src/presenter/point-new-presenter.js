@@ -7,10 +7,10 @@ class PointNewPresenter {
     this._pointListElement = pointListElement;
     this._changeData = changeData;
 
-    this._formElement = null;
+    this._pointNewElement = null;
 
-    this._handleFormSubmit = this._handleFormSubmit.bind(this);
-    this._handleDeleteClick = this._handleDeleteClick.bind(this);
+    this._handleSubmit = this._handleSubmit.bind(this);
+    this._handleDelete = this._handleDelete.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
@@ -18,51 +18,51 @@ class PointNewPresenter {
     this._destroyCallback = callback;
     this._cities = model.getCities();
     this._types = model.getTypes();
-    if (this._formElement !== null) {
+    if (this._pointNewElement !== null) {
       return;
     }
 
-    this._formElement = new PointEditView(null, this._types, this._cities, true);
-    this._formElement.setSubmitHandler(this._handleFormSubmit);
-    this._formElement.setDeleteHandler(this._handleDeleteClick);
+    this._pointNewElement = new PointEditView(null, this._types, this._cities, true);
+    this._pointNewElement.setSubmitHandler(this._handleSubmit);
+    this._pointNewElement.setDeleteHandler(this._handleDelete);
 
-    render(this._pointListElement, this._formElement, RenderPosition.AFTERBEGIN);
+    render(this._pointListElement, this._pointNewElement, RenderPosition.AFTERBEGIN);
 
     document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
   destroy() {
-    if (this._formElement === null) {
+    if (this._pointNewElement === null) {
       return;
     }
 
-    remove(this._formElement);
-    this._formElement = null;
+    remove(this._pointNewElement);
+    this._pointNewElement = null;
 
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
   }
 
   setSaving() {
-    this._formElement.updateData({
+    this._pointNewElement.updateData({
       isDisabled: true,
       isSaving: true
     });
   }
 
   setAborting() {
-    if (this._formElement) {
+    if (this._pointNewElement) {
       const resetFormState = () => {
-        this._formElement.updateData({
+        this._pointNewElement.updateData({
           isDisabled: false,
           isSaving: false,
           isDeleting: false
         });
       };
-      this._formElement.shake(resetFormState);
+      this._pointNewElement.shake(resetFormState);
     }
   }
 
-  _handleFormSubmit(point) {
+  _handleSubmit(point) {
     this._changeData(
         UserAction.ADD_POINT,
         UpdateType.MINOR,
@@ -71,7 +71,7 @@ class PointNewPresenter {
     this.destroy();
   }
 
-  _handleDeleteClick() {
+  _handleDelete() {
     this.destroy();
   }
 
