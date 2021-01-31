@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import {capitalizeFirstLetter} from "../utils/common.js";
-import {SmartView} from "./smart.js";
+import {SmartView} from "./smart-view.js";
 
 const BLANK_POINT = {
   "type": `flight`,

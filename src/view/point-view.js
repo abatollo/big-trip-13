@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import {capitalizeFirstLetter} from "../utils/common.js";
-import {AbstractView} from "./abstract.js";
+import {AbstractView} from "./abstract-view.js";
 
 const MINUTES_IN_HOUR = 60;
 

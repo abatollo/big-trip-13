@@ -1,4 +1,4 @@
-import {AbstractView} from "./abstract.js";
+import {AbstractView} from "./abstract-view.js";
 
 const createFilterTemplate = (filter, currentFilterType) => `
   <div class="trip-filters__filter">
@@ -14,7 +14,7 @@ const createFiltersTemplate = (filters, currentFilter) => `
   </form>
 `;
 
-class FilterView extends AbstractView {
+class FiltersView extends AbstractView {
   constructor(filters, currentFilter) {
     super();
     this._filters = filters;
@@ -38,4 +38,4 @@ class FilterView extends AbstractView {
   }
 }
 
-export {FilterView};
+export {FiltersView};

@@ -1,4 +1,4 @@
-import {DataModel} from "./model/data.js";
+import {DataModel} from "./model/data-model.js";
 
 const Method = {
   GET: `GET`,

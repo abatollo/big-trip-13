@@ -1,4 +1,4 @@
-import {AbstractView} from "./abstract.js";
+import {AbstractView} from "./abstract-view.js";
 import {MenuItem} from "../const.js";
 
 const createMenuTemplate = () => `

@@ -1,12 +1,12 @@
 import {MenuItem, FilterType, UpdateType} from "./const.js";
 import {RenderPosition, render, remove} from "./utils/render.js";
 import {Api} from "./api.js";
-import {DataModel} from "./model/data.js";
-import {FilterModel} from "./model/filter.js"
-import {TripPresenter} from "./presenter/trip.js";
-import {FilterPresenter} from "./presenter/filter.js";
-import {TripTabsView} from "./view/trip-tabs.js";
-import {StatisticsView} from "./view/statistics.js";
+import {DataModel} from "./model/data-model.js";
+import {FilterModel} from "./model/filter-model.js"
+import {TripPresenter} from "./presenter/trip-presenter.js";
+import {FiltersPresenter} from "./presenter/filters-presenter.js";
+import {TripTabsView} from "./view/trip-tabs-view.js";
+import {StatisticsView} from "./view/statistics-view.js";
 
 const AUTHORIZATION = `Basic eo0w590ik29889a`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
@@ -48,7 +48,7 @@ api.getValues(`/offers`)
     dataModel.setTypes(UpdateType.INIT, []);
   });
 
-const filterPresenter = new FilterPresenter(tripControlsLastChildElement, filterModel, dataModel);
+const filterPresenter = new FiltersPresenter(tripControlsLastChildElement, filterModel, dataModel);
 filterPresenter.init();
 
 const siteTripEventsElement = document.querySelector(`.trip-events`);

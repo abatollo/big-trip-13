@@ -3,12 +3,12 @@ import {SortType} from "../const.js";
 import {sortByPrice, sortByTime, sortByDate} from "../utils/sort.js";
 import {filter} from "../utils/filter.js";
 import {UserAction, UpdateType, FilterType} from "../const.js";
-import {PointPresenter, State as PointPresenterViewState} from "./point.js";
-import {PointNewPresenter} from "./point-new.js";
-import {TripSortView} from "../view/trip-sort.js";
-import {PointsListView} from "../view/points-list.js";
-import {NoPointView} from "../view/no-point.js";
-import {LoadingView} from "../view/loading.js";
+import {PointPresenter, State as PointPresenterViewState} from "./point-presenter.js";
+import {PointNewPresenter} from "./point-new-presenter.js";
+import {TripSortView} from "../view/trip-sort-view.js";
+import {PointsListView} from "../view/points-list-view.js";
+import {NoPointsView} from "../view/no-points-view.js";
+import {LoadingView} from "../view/loading-view.js";
 
 class TripPresenter {
   constructor(tripEventsContainer, dataModel, filterModel, api) {
@@ -22,7 +22,7 @@ class TripPresenter {
 
     this._sortComponent = new TripSortView();
     this._pointsListComponent = new PointsListView();
-    this._noPointComponent = new NoPointView();
+    this._noPointComponent = new NoPointsView();
     this._loadingComponent = new LoadingView();
 
     this._handleViewAction = this._handleViewAction.bind(this);

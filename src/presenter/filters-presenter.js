@@ -1,8 +1,8 @@
-import {FilterView} from "../view/trip-filters.js";
+import {FiltersView} from "../view/trip-filters-view.js";
 import {RenderPosition, render, replace, remove} from "../utils/render.js";
 import {FilterType, UpdateType} from "../const.js";
 
-class FilterPresenter {
+class FiltersPresenter {
   constructor(filterContainer, filterModel, pointsModel) {
     this._filterContainer = filterContainer;
     this._filterModel = filterModel;
@@ -24,7 +24,7 @@ class FilterPresenter {
     const filters = this._getFilters();
     const prevFilterView = this._filterComponent;
 
-    this._filterComponent = new FilterView(filters, this._currentFilter);
+    this._filterComponent = new FiltersView(filters, this._currentFilter);
     this._filterComponent.setFilterTypeChangeHandler(this._handleFilterTypeChange);
 
     if (prevFilterView === null) {
@@ -63,4 +63,4 @@ class FilterPresenter {
   }
 }
 
-export {FilterPresenter};
+export {FiltersPresenter};

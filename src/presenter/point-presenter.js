@@ -1,5 +1,5 @@
-import {PointView} from "../view/point.js";
-import {PointEditView} from "../view/point-edit.js";
+import {PointView} from "../view/point-view.js";
+import {PointEditView} from "../view/point-edit-view.js";
 import {RenderPosition, render, replace, remove} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 
