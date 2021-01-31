@@ -36,6 +36,10 @@ export default class PointNewPresenter {
       return;
     }
 
+    if (this._destroyCallback !== null) {
+      this._destroyCallback();
+    }
+
     remove(this._pointNewElement);
     this._pointNewElement = null;
 

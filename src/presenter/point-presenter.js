@@ -23,7 +23,7 @@ export default class PointPresenter {
     this._pointElement = null;
     this._pointEditElement = null;
     this._mode = Mode.DEFAULT;
-    
+
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleOpenClick = this._handleOpenClick.bind(this);
 

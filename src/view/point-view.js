@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import {capitalizeFirstLetter} from "../utils/common.js";
 import AbstractView from "./abstract-view.js";
 
 const MINUTES_IN_HOUR = 60;
@@ -49,7 +48,7 @@ const createPointTemplate = (point) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${capitalizeFirstLetter(point.type)} ${point.destination.name}</h3>
+        <h3 class="event__title">${point.type} ${point.destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${dayjs(point.dateFrom).format(`YYYY-MM-DDTHH:mm`)}">${dayjs(point.dateFrom).format(`H:mm`)}</time>
