@@ -1,5 +1,5 @@
-import {AbstractView} from "./abstract-view.js";
 import {MenuItem} from "../const.js";
+import AbstractView from "./abstract-view.js";
 
 const createMenuTemplate = () =>
   `<nav class="trip-controls__trip-tabs  trip-tabs">
@@ -8,7 +8,7 @@ const createMenuTemplate = () =>
   </nav>
 `;
 
-class TripTabsView extends AbstractView {
+export default class TripTabsView extends AbstractView {
   constructor() {
     super();
 
@@ -42,5 +42,3 @@ class TripTabsView extends AbstractView {
     this._callbacks.menuClick(evt.target.dataset.menuType);
   }
 }
-
-export {TripTabsView};

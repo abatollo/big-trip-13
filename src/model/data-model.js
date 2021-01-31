@@ -1,6 +1,6 @@
 import {Observer} from "../utils/observer.js";
 
-class DataModel extends Observer {
+export default class DataModel extends Observer {
   constructor() {
     super();
     this._points = [];
@@ -122,5 +122,3 @@ class DataModel extends Observer {
     return adaptedPoint;
   }
 }
-
-export {DataModel};

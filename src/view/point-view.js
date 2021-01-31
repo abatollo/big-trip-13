@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import {capitalizeFirstLetter} from "../utils/common.js";
-import {AbstractView} from "./abstract-view.js";
+import AbstractView from "./abstract-view.js";
 
 const MINUTES_IN_HOUR = 60;
 
@@ -76,7 +76,7 @@ const createPointTemplate = (point) => {
   `);
 };
 
-class PointView extends AbstractView {
+export default class PointView extends AbstractView {
   constructor(point) {
     super();
     this._point = point;
@@ -89,7 +89,7 @@ class PointView extends AbstractView {
     return createPointTemplate(this._point);
   }
 
-  setEditClickHandler(callback) {
+  setOpenClickHandler(callback) {
     this._callbacks.editClick = callback;
 
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
@@ -109,5 +109,3 @@ class PointView extends AbstractView {
     this._callbacks.favoriteClick();
   }
 }
-
-export {PointView};

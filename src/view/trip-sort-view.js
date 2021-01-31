@@ -1,5 +1,5 @@
-import {AbstractView} from "./abstract-view.js";
 import {SortType} from "../const.js";
+import AbstractView from "./abstract-view.js";
 
 const createTripSortTemplate = (currentSortType) =>
   `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -30,7 +30,7 @@ const createTripSortTemplate = (currentSortType) =>
   </form>
 `;
 
-class TripSortView extends AbstractView {
+export default class TripSortView extends AbstractView {
   constructor(currentSortType) {
     super();
 
@@ -43,6 +43,11 @@ class TripSortView extends AbstractView {
     return createTripSortTemplate(this._currentSortType);
   }
 
+  setSortTypeChangeHandler(callback) {
+    this._callbacks.sortTypeChange = callback;
+    this.getElement().addEventListener(`click`, this._sortTypeChangeHandler);
+  }
+
   _sortTypeChangeHandler(evt) {
     if (evt.target.tagName !== `LABEL`) {
       return;
@@ -50,11 +55,4 @@ class TripSortView extends AbstractView {
 
     this._callbacks.sortTypeChange(evt.target.dataset.sortType);
   }
-
-  setSortTypeChangeHandler(callback) {
-    this._callbacks.sortTypeChange = callback;
-    this.getElement().addEventListener(`click`, this._sortTypeChangeHandler);
-  }
 }
-
-export {TripSortView};

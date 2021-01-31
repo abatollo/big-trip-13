@@ -1,6 +1,6 @@
 import Chart from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import {SmartView} from "./smart-view.js";
+import SmartView from "./smart-view.js";
 import {divideCostsByTypes, divideByTypes, divideDurationsByTypes} from "../utils/statistics.js";
 
 const BAR_HEIGHT = 55;
@@ -93,7 +93,7 @@ const createStatisticsTemplate = () =>
   </section>
 `;
 
-class StatisticsView extends SmartView {
+export default class StatisticsView extends SmartView {
   constructor(points) {
     super();
 
@@ -140,5 +140,3 @@ class StatisticsView extends SmartView {
     this._timeSpendChart = renderChart(durations, timeSpendCtx, `TIME SPENT`, `H`);
   }
 }
-
-export {StatisticsView};

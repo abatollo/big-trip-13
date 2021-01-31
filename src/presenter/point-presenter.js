@@ -1,7 +1,7 @@
-import {PointView} from "../view/point-view.js";
-import {PointEditView} from "../view/point-edit-view.js";
-import {RenderPosition, render, replace, remove} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
+import {RenderPosition, render, replace, remove} from "../utils/render.js";
+import PointView from "../view/point-view.js";
+import PointEditView from "../view/point-edit-view.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -14,7 +14,7 @@ export const State = {
   ABORTING: `ABORTING`
 };
 
-class PointPresenter {
+export default class PointPresenter {
   constructor(pointsListContainer, changeData, changeMode) {
     this._pointsListContainer = pointsListContainer;
     this._changeData = changeData;
@@ -23,13 +23,13 @@ class PointPresenter {
     this._pointElement = null;
     this._pointEditElement = null;
     this._mode = Mode.DEFAULT;
+    
+    this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._handleOpenClick = this._handleOpenClick.bind(this);
 
-    this._handleOpen = this._handleOpen.bind(this);
-    this._handleSubmit = this._handleSubmit.bind(this);
-    this._handleClose = this._handleClose.bind(this);
-    this._handleFavorite = this._handleFavorite.bind(this);
-    this._handleClose = this._handleClose.bind(this);
-    this._handleDelete = this._handleDelete.bind(this);
+    this._handleFormSubmit = this._handleFormSubmit.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
+    this._handleCloseClick = this._handleCloseClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
@@ -44,12 +44,12 @@ class PointPresenter {
     this._pointElement = new PointView(this._point);
     this._pointEditElement = new PointEditView(this._point, this._types, this._cities, true);
 
-    this._pointElement.setFavoriteClickHandler(this._handleFavorite);
-    this._pointElement.setEditClickHandler(this._handleOpen);
+    this._pointElement.setFavoriteClickHandler(this._handleFavoriteClick);
+    this._pointElement.setOpenClickHandler(this._handleOpenClick);
 
-    this._pointEditElement.setSubmitHandler(this._handleSubmit);
-    this._pointEditElement.setDeleteHandler(this._handleDelete);
-    this._pointEditElement.setCloseHandler(this._handleClose);
+    this._pointEditElement.setFormSubmitHandler(this._handleFormSubmit);
+    this._pointEditElement.setDeleteClickHandler(this._handleDeleteClick);
+    this._pointEditElement.setCloseClickHandler(this._handleCloseClick);
 
     if (prevPointElement === null && prevPointEditElement === null) {
       render(this._pointsListContainer, this._pointElement, RenderPosition.BEFOREEND);
@@ -110,7 +110,20 @@ class PointPresenter {
     }
   }
 
-  _handleFavorite() {
+  _replacePointToForm() {
+    replace(this._pointEditElement, this._pointElement);
+    document.addEventListener(`keydown`, this._escKeyDownHandler);
+    this._changeMode();
+    this._mode = Mode.EDITING;
+  }
+
+  _replaceFormToPoint() {
+    replace(this._pointElement, this._pointEditElement);
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
+    this._mode = Mode.DEFAULT;
+  }
+
+  _handleFavoriteClick() {
     this._changeData(
         UserAction.UPDATE_POINT,
         UpdateType.MINOR,
@@ -122,11 +135,11 @@ class PointPresenter {
         ));
   }
 
-  _handleOpen() {
+  _handleOpenClick() {
     this._replacePointToForm();
   }
 
-  _handleSubmit(point) {
+  _handleFormSubmit(point) {
     this._changeData(
         UserAction.UPDATE_POINT,
         UpdateType.PATCH,
@@ -135,7 +148,7 @@ class PointPresenter {
     this._replaceFormToPoint();
   }
 
-  _handleDelete(point) {
+  _handleDeleteClick(point) {
     this._changeData(
         UserAction.DELETE_POINT,
         UpdateType.MINOR,
@@ -143,10 +156,9 @@ class PointPresenter {
     );
   }
 
-  _handleClose() {
+  _handleCloseClick() {
     this._pointEditElement.reset(this._point);
     this._replaceFormToPoint();
-    this._pointEditElement.removeElement();
   }
 
   _escKeyDownHandler(evt) {
@@ -154,22 +166,6 @@ class PointPresenter {
       evt.preventDefault();
       this._pointEditElement.reset(this._point);
       this._replaceFormToPoint();
-      this._pointEditElement.removeElement();
     }
   }
-
-  _replacePointToForm() {
-    replace(this._pointEditElement, this._pointElement);
-    this._changeMode(this);
-    this._mode = Mode.EDITING;
-    document.addEventListener(`keydown`, this._escKeyDownHandler);
-  }
-
-  _replaceFormToPoint() {
-    replace(this._pointElement, this._pointEditElement);
-    this._mode = Mode.DEFAULT;
-    document.removeEventListener(`keydown`, this._escKeyDownHandler);
-  }
 }
-
-export {PointPresenter};

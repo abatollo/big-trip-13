@@ -1,60 +1,29 @@
 import {MenuItem, FilterType, UpdateType} from "./const.js";
 import {RenderPosition, render, remove} from "./utils/render.js";
-import {Api} from "./api.js";
-import {DataModel} from "./model/data-model.js";
-import {FilterModel} from "./model/filter-model.js"
-import {TripPresenter} from "./presenter/trip-presenter.js";
-import {FiltersPresenter} from "./presenter/filters-presenter.js";
-import {TripTabsView} from "./view/trip-tabs-view.js";
-import {StatisticsView} from "./view/statistics-view.js";
+import Api from "./api.js";
+import DataModel from "./model/data-model.js";
+import FilterModel from "./model/filter-model.js"
+import TripPresenter from "./presenter/trip-presenter.js";
+import FiltersPresenter from "./presenter/filters-presenter.js";
+import TripTabsView from "./view/trip-tabs-view.js";
+import StatisticsView from "./view/statistics-view.js";
 
 const AUTHORIZATION = `Basic eo0w590ik29889a`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 
-const api = new Api(END_POINT, AUTHORIZATION);
-const dataModel = new DataModel();
-const filterModel = new FilterModel();
-
 const tripControlsElement = document.querySelector(`.trip-controls`);
 const tripControlsFirstChildElement = tripControlsElement.firstChild;
 const tripControlsLastChildElement = tripControlsElement.lastChild;
-const tripTabsElement = new TripTabsView();
-
-api.getPoints()
-  .then((points) => {
-    dataModel.setPoints(UpdateType.INIT, points);
-  })
-  .catch(() => {
-    dataModel.setPoints(UpdateType.INIT, []);
-  })
-  .finally(() => {
-    tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
-    render(tripControlsFirstChildElement, tripTabsElement.getElement(), RenderPosition.AFTEREND);
-  });
-
-api.getValues(`/destinations`)
-  .then((cities) => {
-    dataModel.setCities(UpdateType.INIT, cities);
-  })
-  .catch(() => {
-    dataModel.setCities(UpdateType.INIT, []);
-  });
-
-api.getValues(`/offers`)
-  .then((types) => {
-    dataModel.setTypes(UpdateType.INIT, types);
-  })
-  .catch(() => {
-    dataModel.setTypes(UpdateType.INIT, []);
-  });
-
-const filtersPresenter = new FiltersPresenter(tripControlsLastChildElement, filterModel, dataModel);
-filtersPresenter.init();
-
 const tripEventsElement = document.querySelector(`.trip-events`);
 
+const api = new Api(END_POINT, AUTHORIZATION);
+
+const dataModel = new DataModel();
+const filterModel = new FilterModel();
+
+const tripTabsElement = new TripTabsView();
+const filtersPresenter = new FiltersPresenter(tripControlsLastChildElement, filterModel, dataModel);
 const tripPresenter = new TripPresenter(tripEventsElement, dataModel, filterModel, api);
-tripPresenter.init();
 
 document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, () => {
   tripPresenter.createPoint();
@@ -104,3 +73,34 @@ addEventElement.addEventListener(`click`, (evt) => {
 });
 
 tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
+
+filtersPresenter.init();
+tripPresenter.init();
+
+api.getPoints()
+  .then((points) => {
+    dataModel.setPoints(UpdateType.INIT, points);
+  })
+  .catch(() => {
+    dataModel.setPoints(UpdateType.INIT, []);
+  })
+  .finally(() => {
+    tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
+    render(tripControlsFirstChildElement, tripTabsElement.getElement(), RenderPosition.AFTEREND);
+  });
+
+api.getValues(`/destinations`)
+  .then((cities) => {
+    dataModel.setCities(UpdateType.INIT, cities);
+  })
+  .catch(() => {
+    dataModel.setCities(UpdateType.INIT, []);
+  });
+
+api.getValues(`/offers`)
+  .then((types) => {
+    dataModel.setTypes(UpdateType.INIT, types);
+  })
+  .catch(() => {
+    dataModel.setTypes(UpdateType.INIT, []);
+  });

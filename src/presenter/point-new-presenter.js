@@ -1,16 +1,16 @@
-import {PointEditView} from '../view/point-edit-view.js';
-import {RenderPosition, remove, render} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
+import {RenderPosition, remove, render} from "../utils/render.js";
+import PointEditView from '../view/point-edit-view.js';
 
-class PointNewPresenter {
+export default class PointNewPresenter {
   constructor(pointListElement, changeData) {
     this._pointListElement = pointListElement;
     this._changeData = changeData;
 
     this._pointNewElement = null;
 
-    this._handleSubmit = this._handleSubmit.bind(this);
-    this._handleDelete = this._handleDelete.bind(this);
+    this._handleFormSubmit = this._handleFormSubmit.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
@@ -22,9 +22,9 @@ class PointNewPresenter {
       return;
     }
 
-    this._pointNewElement = new PointEditView(null, this._types, this._cities, true);
-    this._pointNewElement.setSubmitHandler(this._handleSubmit);
-    this._pointNewElement.setDeleteHandler(this._handleDelete);
+    this._pointNewElement = new PointEditView(null, this._types, this._cities, false);
+    this._pointNewElement.setFormSubmitHandler(this._handleFormSubmit);
+    this._pointNewElement.setDeleteClickHandler(this._handleDeleteClick);
 
     render(this._pointListElement, this._pointNewElement, RenderPosition.AFTERBEGIN);
 
@@ -62,7 +62,7 @@ class PointNewPresenter {
     }
   }
 
-  _handleSubmit(point) {
+  _handleFormSubmit(point) {
     this._changeData(
         UserAction.ADD_POINT,
         UpdateType.MINOR,
@@ -71,7 +71,7 @@ class PointNewPresenter {
     this.destroy();
   }
 
-  _handleDelete() {
+  _handleDeleteClick() {
     this.destroy();
   }
 
@@ -82,5 +82,3 @@ class PointNewPresenter {
     }
   }
 }
-
-export {PointNewPresenter};

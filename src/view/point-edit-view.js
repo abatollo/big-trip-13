@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import {capitalizeFirstLetter} from "../utils/common.js";
-import {SmartView} from "./smart-view.js";
+import SmartView from "./smart-view.js";
 
 const BLANK_POINT = {
   "type": `flight`,
@@ -19,7 +19,7 @@ const BLANK_POINT = {
 
 const checkIsOfferChecked = (userOffers, availableOffer) => Boolean(userOffers.find((userOffer) => userOffer.title === availableOffer.title));
 
-const findAvailableOffers = (type, overallOffersList) => overallOffersList.find((el) => el.type === type);
+const findAvailableOffers = (type, allOffers) => allOffers.find((el) => el.type === type);
 
 const formatAttributeValue = (offerTitle) => offerTitle.replace(/\s+/g, `-`).toLowerCase();
 
@@ -59,18 +59,31 @@ const createPointPhotosTemplate = (photos) => `
   ` : ``}
 `;
 
-const createPointRollupBtn = () => `
+const createPointRollupBtnTemplate = () => `
   <button class="event__rollup-btn" type="button">
     <span class="visually-hidden">Open event</span>
   </button>
 `;
 
-const createPointDestinationOptions = (overallDestinationsList) => `${overallDestinationsList.map((destination) => createPointDestinationOption(destination)).join(``)}`;
+const createPointDestinationOptions = (allDestinations) => `${allDestinations.map((destination) => createPointDestinationOption(destination)).join(``)}`;
 
 const createPointDestinationOption = (destination) => `<option value="${destination.name}"></option>`;
 
-const createPointEditTemplate = (data, overallOffersList, overallDestinationsList) => {
-  const {type, destination, dateFrom, dateTo, basePrice, offers, isEditing} = data;
+const createPointEditTemplate = (data, allOffers, allDestinations) => {
+  const {
+    type, 
+    destination, 
+    dateFrom, 
+    dateTo, 
+    basePrice, 
+    offers, 
+    isEditing, 
+    isDisabled, 
+    isSaving,
+    isDeleting
+  } = data;
+
+  const resetButtonText = isEditing ? `Delete` : `Cancel`;
 
   return (
     `<li class="trip-events__item">
@@ -146,7 +159,7 @@ const createPointEditTemplate = (data, overallOffersList, overallDestinationsLis
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${createPointDestinationOptions(overallDestinationsList)}
+              ${createPointDestinationOptions(allDestinations)}
             </datalist>
           </div>
 
@@ -166,12 +179,12 @@ const createPointEditTemplate = (data, overallOffersList, overallDestinationsLis
             <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Cancel</button>
-          ${isEditing ? createPointRollupBtn() : ``}
+          <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? `Saving...` : `Save`}</button>
+          <button class="event__reset-btn" type="reset" ${isDisabled ? `disabled` : ``}>${isDeleting ? `Deleting...` : resetButtonText}</button>
+          ${isEditing ? createPointRollupBtnTemplate() : ``}
         </header>
         <section class="event__details">
-          ${createPointAvailableOffersTemplate(offers, findAvailableOffers(type, overallOffersList))}
+          ${createPointAvailableOffersTemplate(offers, findAvailableOffers(type, allOffers))}
 
           <section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
@@ -185,25 +198,25 @@ const createPointEditTemplate = (data, overallOffersList, overallDestinationsLis
   `);
 };
 
-class PointEditView extends SmartView {
-  constructor(point, overallOffersList, overallDestinationsList, isEditing) {
+export default class PointEditView extends SmartView {
+  constructor(point, allOffers, allDestinations, isEditing) {
     super();
     if (point === null) {
       point = BLANK_POINT;
     }
     this._data = PointEditView.parsePointToData(point, isEditing);
-    this._overallOffersList = overallOffersList;
-    this._overallDestinationsList = overallDestinationsList;
+    this._allOffers = allOffers;
+    this._allDestinations = allDestinations;
     this._datepickers = {};
 
     this._dateFromChangeHandler = this._dateFromChangeHandler.bind(this);
     this._dateToChangeHandler = this._dateToChangeHandler.bind(this);
 
-    this._formSubmitHandler = this._submitHandler.bind(this);
-    this._formCloseClickHandler = this._closeHandler.bind(this);
-    this._formDeleteClickHandler = this._deleteHandler.bind(this);
-    this._inputPriceHandler = this._priceChangeHandler.bind(this);
-    this._selectOffersHandler = this._offersChangeHandler.bind(this);
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._closeClickHandler = this._closeClickHandler.bind(this);
+    this._deleteClickHandler = this._deleteClickHandler.bind(this);
+    this._priceChangeHandler = this._priceChangeHandler.bind(this);
+    this._offersChangeHandler = this._offersChangeHandler.bind(this);
 
     this._typeChangeHandler = this._typeChangeHandler.bind(this);
     this._destinationChangeHandler = this._destinationChangeHandler.bind(this);
@@ -214,77 +227,53 @@ class PointEditView extends SmartView {
   }
 
   getTemplate() {
-    return createPointEditTemplate(this._data, this._overallOffersList, this._overallDestinationsList);
+    return createPointEditTemplate(this._data, this._allOffers, this._allDestinations);
   }
 
-  reset(data) {
+  reset(point) {
     this.updateData(
-        PointEditView.parseDataToPoint(data)
+        PointEditView.parsePointToData(point)
     );
   }
 
-  setSubmitHandler(callback) {
+  setFormSubmitHandler(callback) {
     this._callbacks.formSubmit = callback;
-    this.getElement().addEventListener(`submit`, this._submitHandler);
+    this.getElement().addEventListener(`submit`, this._formSubmitHandler);
   }
 
-  setCloseHandler(callback) {
-    this._callbacks.formClick = callback;
+  setCloseClickHandler(callback) {
+    this._callbacks.closeClick = callback;
     if (this.getElement().querySelector(`.event__rollup-btn`)) {
-      this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._closeHandler);
+      this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._closeClickHandler);
     }
   }
 
-  setDeleteHandler(callback) {
+  setDeleteClickHandler(callback) {
     this._callbacks.deleteClick = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteHandler);
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._deleteClickHandler);
   }
 
   restoreHandlers() {
-    this.setDeleteHandler(this._callbacks.deleteClick);
-    this.setSubmitHandler(this._callbacks.formSubmit);
-    this.setCloseHandler(this._callbacks.formClick);
+    this.setFormSubmitHandler(this._callbacks.formSubmit);
+    this.setCloseClickHandler(this._callbacks.closeClick);
+    this.setDeleteClickHandler(this._callbacks.deleteClick);
     this._setInnerHandlers();
     this._setDateFromDatepicker();
     this._setDateToDatepicker();
   }
 
-  static parsePointToData(point, isEditing) {
-    return Object.assign(
-        {},
-        point,
-        {
-          isEditing,
-          isSaving: false,
-          isDeleting: false,
-          isDisabled: false
-        }
-    );
-  }
-
-  static parseDataToPoint(data) {
-    delete data.isEditing;
-    delete data.isSaving;
-    delete data.isDeleting;
-    delete data.isDisabled;
-    return Object.assign(
-        {},
-        data
-    );
-  }
-
-  _submitHandler(evt) {
+  _formSubmitHandler(evt) {
     evt.preventDefault();
 
     this._callbacks.formSubmit(PointEditView.parsePointToData(this._data, this._data.isEditing));
   }
 
-  _closeHandler() {
-    this._callbacks.formClick();
+  _closeClickHandler() {
+    this._callbacks.closeClick();
     this.removeElement();
   }
 
-  _deleteHandler() {
+  _deleteClickHandler() {
     this._callbacks.deleteClick(PointEditView.parseDataToPoint(this._data));
     this.removeElement();
   }
@@ -310,7 +299,7 @@ class PointEditView extends SmartView {
   }
 
   _typeChangeHandler(evt) {
-    const newOffers = this._overallOffersList.find((elem) => elem.type.toLowerCase() === evt.target.value).offers;
+    const newOffers = this._allOffers.find((elem) => elem.type.toLowerCase() === evt.target.value).offers;
     this.updateData({
       type: evt.target.value,
       offers: newOffers,
@@ -318,12 +307,12 @@ class PointEditView extends SmartView {
   }
 
   _destinationChangeHandler(evt) {
-    const pointNames = this._overallDestinationsList.reduce((accumulator, currentValue) => {
+    const pointNames = this._allDestinations.reduce((accumulator, currentValue) => {
       accumulator[currentValue.name] = currentValue;
       return accumulator;
     }, {});
 
-    const newDestination = this._overallDestinationsList.find((destination) => destination.name === evt.target.value);
+    const newDestination = this._allDestinations.find((destination) => destination.name === evt.target.value);
 
     if (newDestination) {
       this.updateData({
@@ -347,7 +336,7 @@ class PointEditView extends SmartView {
   }
 
   _offersChangeHandler(evt) {
-    const availableOffers = findAvailableOffers(this._data.type, this._overallOffersList);
+    const availableOffers = findAvailableOffers(this._data.type, this._allOffers);
     const newOffer = availableOffers.offers.find((el) => el.title === evt.target.dataset.offer);
     if (evt.target.checked) {
       this._data.offers.push(newOffer);
@@ -409,6 +398,28 @@ class PointEditView extends SmartView {
       dateTo: userDateTo
     }, true);
   }
-}
 
-export {PointEditView};
+  static parsePointToData(point, isEditing) {
+    return Object.assign(
+        {},
+        point,
+        {
+          isEditing,
+          isSaving: false,
+          isDeleting: false,
+          isDisabled: false
+        }
+    );
+  }
+
+  static parseDataToPoint(data) {
+    delete data.isEditing;
+    delete data.isSaving;
+    delete data.isDeleting;
+    delete data.isDisabled;
+    return Object.assign(
+        {},
+        data
+    );
+  }
+}

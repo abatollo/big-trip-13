@@ -1,6 +1,6 @@
-import {AbstractView} from "./abstract-view.js";
+import AbstractView from "./abstract-view.js";
 
-class SmartView extends AbstractView {
+export default class SmartView extends AbstractView {
   constructor() {
     super();
     this._data = {};
@@ -40,5 +40,3 @@ class SmartView extends AbstractView {
     throw new Error(`Abstract method not implemented: resetHandlers`);
   }
 }
-
-export {SmartView};

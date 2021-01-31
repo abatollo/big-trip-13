@@ -1,4 +1,4 @@
-import {DataModel} from "./model/data-model.js";
+import DataModel from "./model/data-model.js";
 
 const Method = {
   GET: `GET`,
@@ -12,7 +12,7 @@ const SuccessHTTPStatusRange = {
   MAX: 299
 };
 
-class Api {
+export default class Api {
   constructor(endPoint, authorization) {
     this._endPoint = endPoint;
     this._authorization = authorization;
@@ -99,5 +99,3 @@ class Api {
       .catch(Api.catchError);
   }
 }
-
-export {Api};
