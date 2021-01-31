@@ -1,5 +1,5 @@
 import FormComponent from '../view/point-edit.js';
-import {generateId} from "../mock/trip.js";
+import {generateId} from "../utils/common.js";
 import {remove, render, RenderPosition} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 
@@ -15,13 +15,13 @@ export default class PointNew {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
   }
 
-  init(model) {
+  init(callback, model) {
+    this._destroyCallback = callback;
+    this._cities = model.getCities();
+    this._types = model.getTypes();
     if (this._formComponent !== null) {
       return;
     }
-
-    this._cities = model.getCities();
-    this._types = model.getTypes();
 
     this._formComponent = new FormComponent(null, this._types, this._cities, true);
     this._formComponent.setFormSubmitHandler(this._handleFormSubmit);
