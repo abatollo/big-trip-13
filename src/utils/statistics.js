@@ -28,6 +28,4 @@ const divideDurationsByTypes = (points) => {
     .sort(([, durationA], [, durationB]) => durationB - durationA);
 };
 
-
 export {divideCostsByTypes, divideByTypes, divideDurationsByTypes};
-

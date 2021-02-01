@@ -1,8 +1,10 @@
 import {createElement} from "../utils/render.js";
 
-export default class Abstract {
+const SHAKE_ANIMATION_TIMEOUT = 600;
+
+export default class AbstractView {
   constructor() {
-    if (new.target === Abstract) {
+    if (new.target === AbstractView) {
       throw new Error(`Can't instantiate Abstract, only concrete one.`);
     }
 
@@ -24,5 +26,13 @@ export default class Abstract {
 
   removeElement() {
     this._element = null;
+  }
+
+  shake(callback) {
+    this.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    setTimeout(() => {
+      this.getElement().style.animation = ``;
+      callback();
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 }

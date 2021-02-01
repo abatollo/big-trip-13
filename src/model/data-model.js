@@ -1,6 +1,6 @@
-import Observer from "../utils/observer.js";
+import {Observer} from "../utils/observer.js";
 
-export default class Data extends Observer {
+export default class DataModel extends Observer {
   constructor() {
     super();
     this._points = [];
@@ -115,7 +115,7 @@ export default class Data extends Observer {
     delete adaptedPoint.dateTo;
     delete adaptedPoint.isFavorite;
     delete adaptedPoint.isDisabled;
-    delete adaptedPoint.isDrawn;
+    delete adaptedPoint.isEditing;
     delete adaptedPoint.isDeleting;
     delete adaptedPoint.isSaving;
 

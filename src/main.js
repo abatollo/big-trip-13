@@ -1,109 +1,88 @@
-import {MenuItem, UpdateType, FilterType} from "./const.js";
-import {render, RenderPosition, remove} from "./utils/render.js";
+import {MenuItem, FilterType, UpdateType} from "./const.js";
+import {RenderPosition, render, remove} from "./utils/render.js";
 import Api from "./api.js";
-import DataModel from "./model/data.js";
-import FilterModel from "./model/filter.js"
-import TripPresenter from "./presenter/trip.js";
-import FilterPresenter from "./presenter/filter.js";
-import TripInfoView from "./view/trip-info.js";
-import TripTabsView from "./view/trip-tabs.js";
-import StatisticsComponent from "./view/statistics.js";
+import DataModel from "./model/data-model.js";
+import FilterModel from "./model/filter-model.js"
+import TripPresenter from "./presenter/trip-presenter.js";
+import FiltersPresenter from "./presenter/filters-presenter.js";
+import TripTabsView from "./view/trip-tabs-view.js";
+import StatisticsView from "./view/statistics-view.js";
 
 const AUTHORIZATION = `Basic eo0w590ik29889a`;
 const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 
+const tripControlsElement = document.querySelector(`.trip-controls`);
+const tripControlsFirstChildElement = tripControlsElement.firstChild;
+const tripControlsLastChildElement = tripControlsElement.lastChild;
+const tripEventsElement = document.querySelector(`.trip-events`);
+
 const api = new Api(END_POINT, AUTHORIZATION);
+
 const dataModel = new DataModel();
 const filterModel = new FilterModel();
 
-const siteTripMainElement = document.querySelector(`.trip-main`);
-const siteTripControlsElement = siteTripMainElement.querySelector(`.trip-controls`);
-const siteTripControlsFirstHeadingElement = siteTripControlsElement.querySelector(`h2:first-of-type`);
-const siteTripControlsLastHeadingElement = siteTripControlsElement.querySelector(`h2:last-of-type`);
-const siteMenuComponent = new TripTabsView();
-
-api.getPoints()
-  .then((points) => {
-    dataModel.setPoints(UpdateType.INIT, points);
-  })
-  .catch(() => {
-    dataModel.setPoints(UpdateType.INIT, []);
-  })
-  .finally(() => {
-    // routeComponent = new Route(dataModel);
-    // render(tripMainElem, routeComponent, RenderPosition.AFTERBEGIN);
-    siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
-    render(siteTripControlsFirstHeadingElement, siteMenuComponent.getElement(), RenderPosition.AFTEREND);
-  });
-
-api.getValues(`/destinations`)
-  .then((cities) => {
-    dataModel.setCities(UpdateType.INIT, cities);
-  })
-  .catch(() => {
-    dataModel.setCities(UpdateType.INIT, []);
-  });
-
-api.getValues(`/offers`)
-  .then((types) => {
-    dataModel.setTypes(UpdateType.INIT, types);
-  })
-  .catch(() => {
-    dataModel.setTypes(UpdateType.INIT, []);
-  });
-
-render(siteTripMainElement, new TripInfoView(), RenderPosition.AFTERBEGIN);
-
-const filterPresenter = new FilterPresenter(siteTripControlsLastHeadingElement, filterModel, dataModel);
-filterPresenter.init();
-
-const siteTripEventsElement = document.querySelector(`.trip-events`);
-
-const tripPresenter = new TripPresenter(siteTripEventsElement, dataModel, filterModel, api);
-tripPresenter.init();
-
-document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, () => {
-  tripPresenter.createPoint();
-});
+const tripTabsElement = new TripTabsView();
+const filtersPresenter = new FiltersPresenter(tripControlsLastChildElement, filterModel);
+const tripPresenter = new TripPresenter(tripEventsElement, dataModel, filterModel, api);
 
 const handlePointNewFormClose = () => {
-  newPointAdd.disabled = false;
+  addEventElement.disabled = false;
 };
 
-let statisticsComponent = null;
+let statisticsElement = null;
 
 const handleSiteMenuClick = (menuItem) => {
   switch (menuItem) {
     case MenuItem.TABLE:
       tripPresenter.destroy();
       tripPresenter.init();
-      remove(statisticsComponent);
-      siteMenuComponent.getElement().querySelector(`[data-menu-type="${MenuItem.STATS}"]`).classList.remove(`trip-tabs__btn--active`);
-      siteMenuComponent.setMenuItem(MenuItem.TABLE);
+      if (statisticsElement) {
+        remove(statisticsElement);
+      }
+      tripTabsElement.getElement().querySelector(`[data-menu-type="${MenuItem.STATS}"]`).classList.remove(`trip-tabs__btn--active`);
+      tripTabsElement.setMenuItem(MenuItem.TABLE);
       break;
     case MenuItem.STATS:
       tripPresenter.destroy();
-      statisticsComponent = new StatisticsComponent(dataModel.getPoints());
-      console.log(statisticsComponent);
-      render(siteTripEventsElement.firstChild, statisticsComponent, RenderPosition.AFTEREND);
-      siteMenuComponent.getElement().querySelector(`[data-menu-type="${MenuItem.TABLE}"]`).classList.remove(`trip-tabs__btn--active`);
-      siteMenuComponent.setMenuItem(MenuItem.STATS);
+      statisticsElement = new StatisticsView(dataModel.getPoints());
+      render(tripEventsElement.firstChild, statisticsElement, RenderPosition.AFTEREND);
+      tripTabsElement.getElement().querySelector(`[data-menu-type="${MenuItem.TABLE}"]`).classList.remove(`trip-tabs__btn--active`);
+      tripTabsElement.setMenuItem(MenuItem.STATS);
       break;
   }
 };
 
-const newPointAdd = document.querySelector(`.trip-main__event-add-btn`);
+const addEventElement = document.querySelector(`.trip-main__event-add-btn`);
 
-newPointAdd.addEventListener(`click`, (evt) => {
+addEventElement.addEventListener(`click`, (evt) => {
   evt.preventDefault();
-  remove(statisticsComponent);
-  tripPresenter.destroy();
+  if (statisticsElement) {
+    remove(statisticsElement);
+  }
   filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-  tripPresenter.init();
   tripPresenter.createPoint(handlePointNewFormClose);
-  siteMenuComponent.getElement().querySelector(`[data-menu-type="${MenuItem.STATS}"]`).classList.remove(`trip-tabs__btn--active`);
-  siteMenuComponent.setMenuItem(MenuItem.TABLE);
-  newPointAdd.disabled = true;
+  tripTabsElement.getElement().querySelector(`[data-menu-type="${MenuItem.STATS}"]`).classList.remove(`trip-tabs__btn--active`);
+  tripTabsElement.setMenuItem(MenuItem.TABLE);
+  addEventElement.disabled = true;
 });
 
-siteMenuComponent.setMenuClickHandler(handleSiteMenuClick);
+tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
+
+filtersPresenter.init();
+tripPresenter.init();
+
+
+Promise.all([api.getValues(`/offers`), api.getPoints(), api.getValues(`/destinations`)])
+  .then(([types, points, cities]) => {
+    dataModel.setTypes(UpdateType.INIT, types);
+    dataModel.setPoints(UpdateType.INIT, points);
+    dataModel.setCities(UpdateType.INIT, cities);
+  })
+  .catch(() => {
+    dataModel.setPoints(UpdateType.INIT, []);
+    dataModel.setCities(UpdateType.INIT, []);
+    dataModel.setTypes(UpdateType.INIT, []);
+  })
+  .finally(() => {
+    render(tripControlsFirstChildElement, tripTabsElement.getElement(), RenderPosition.AFTEREND);
+  });

@@ -1,6 +1,6 @@
-import AbstractView from "./abstract.js";
 import dayjs from "dayjs";
-import {capitalizeFirstLetter} from "../utils/common.js";
+import AbstractView from "./abstract-view.js";
+
 const MINUTES_IN_HOUR = 60;
 
 const createPointOfferTemplate = (offer) => `
@@ -17,7 +17,7 @@ const createPointOffersTemplate = (offers) => `
     <ul class="event__selected-offers">
       ${offers.map((offer) => createPointOfferTemplate(offer)).join(``)}
     </ul>
-    ` : ``}
+  ` : ``}
 `;
 
 const getDuration = (to, from) => {
@@ -48,7 +48,7 @@ const createPointTemplate = (point) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${point.type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${capitalizeFirstLetter(point.type)} ${point.destination.name}</h3>
+        <h3 class="event__title">${point.type} ${point.destination.name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${dayjs(point.dateFrom).format(`YYYY-MM-DDTHH:mm`)}">${dayjs(point.dateFrom).format(`H:mm`)}</time>
@@ -71,11 +71,11 @@ const createPointTemplate = (point) => {
           <span class="visually-hidden">Open event</span>
         </button>
       </div>
-    </li>`
-  );
+    </li>
+  `);
 };
 
-export default class Point extends AbstractView {
+export default class PointView extends AbstractView {
   constructor(point) {
     super();
     this._point = point;
@@ -88,16 +88,7 @@ export default class Point extends AbstractView {
     return createPointTemplate(this._point);
   }
 
-  _editClickHandler(evt) {
-    evt.preventDefault();
-    this._callbacks.editClick();
-  }
-
-  _favoriteClickHandler() {
-    this._callbacks.favoriteClick();
-  }
-
-  setEditClickHandler(callback) {
+  setOpenClickHandler(callback) {
     this._callbacks.editClick = callback;
 
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._editClickHandler);
@@ -106,5 +97,14 @@ export default class Point extends AbstractView {
   setFavoriteClickHandler(callback) {
     this._callbacks.favoriteClick = callback;
     this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
+  }
+
+  _editClickHandler(evt) {
+    evt.preventDefault();
+    this._callbacks.editClick();
+  }
+
+  _favoriteClickHandler() {
+    this._callbacks.favoriteClick();
   }
 }
