@@ -22,7 +22,7 @@ const dataModel = new DataModel();
 const filterModel = new FilterModel();
 
 const tripTabsElement = new TripTabsView();
-const filtersPresenter = new FiltersPresenter(tripControlsLastChildElement, filterModel, dataModel);
+const filtersPresenter = new FiltersPresenter(tripControlsLastChildElement, filterModel);
 const tripPresenter = new TripPresenter(tripEventsElement, dataModel, filterModel, api);
 
 const handlePointNewFormClose = () => {
@@ -66,7 +66,7 @@ addEventElement.addEventListener(`click`, (evt) => {
   addEventElement.disabled = true;
 });
 
-tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
+// tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
 
 filtersPresenter.init();
 tripPresenter.init();

@@ -3,10 +3,9 @@ import {RenderPosition, render, replace, remove} from "../utils/render.js";
 import FiltersView from "../view/trip-filters-view.js";
 
 export default class FiltersPresenter {
-  constructor(filtersContainer, filtersModel, dataModel) {
+  constructor(filtersContainer, filtersModel) {
     this._filtersContainer = filtersContainer;
     this._filtersModel = filtersModel;
-    this._dataModel = dataModel;
     this._currentFilter = null;
 
     this._filterElement = null;
