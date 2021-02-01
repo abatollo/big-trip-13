@@ -353,9 +353,13 @@ export default class PointEditView extends SmartView {
   }
 
   _dateFromChangeHandler([userDateFrom]) {
-    this.updateData({
-      dateFrom: userDateFrom.toISOString()
-    }, true);
+    const data = {dateFrom: userDateFrom.toISOString()};
+
+    if (dayjs(this._data.dateTo).diff(userDateFrom) < 0) {
+      data.dateTo = userDateFrom.toISOString();
+    }
+
+    this.updateData(data);
   }
 
   _dateToChangeHandler([userDateTo]) {
