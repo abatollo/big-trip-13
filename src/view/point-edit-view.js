@@ -317,8 +317,7 @@ export default class PointEditView extends SmartView {
         `[name="event-start-time"]`,
         {
           defaultDate: this._data.dateFrom,
-          minDate: this._data.dateFrom,
-          onChange: this._dateToChangeHandler
+          onChange: this._dateFromChangeHandler
         }
     );
   }
@@ -329,7 +328,8 @@ export default class PointEditView extends SmartView {
         `[name="event-end-time"]`,
         {
           defaultDate: this._data.dateTo,
-          onChange: this._dateFromChangeHandler
+          minDate: this._data.dateFrom,
+          onChange: this._dateToChangeHandler
         }
     );
   }
@@ -354,13 +354,13 @@ export default class PointEditView extends SmartView {
 
   _dateFromChangeHandler([userDateFrom]) {
     this.updateData({
-      dateFrom: userDateFrom
+      dateFrom: userDateFrom.toISOString()
     }, true);
   }
 
   _dateToChangeHandler([userDateTo]) {
     this.updateData({
-      dateTo: userDateTo
+      dateTo: userDateTo.toISOString()
     }, true);
   }
 
