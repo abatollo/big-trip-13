@@ -143,7 +143,6 @@ export default class PointPresenter {
       isSaving: false,
       isDeleting: false
     });
-    this._replacePointToForm();
   }
 
   _handleFormSubmit(point) {
