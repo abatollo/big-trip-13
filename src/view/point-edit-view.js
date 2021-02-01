@@ -241,7 +241,6 @@ export default class PointEditView extends SmartView {
 
   _deleteClickHandler() {
     this._callbacks.deleteClick(PointEditView.parseDataToPoint(this._data));
-    this.removeElement();
   }
 
   _setInnerHandlers() {
