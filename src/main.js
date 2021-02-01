@@ -66,7 +66,7 @@ addEventElement.addEventListener(`click`, (evt) => {
   addEventElement.disabled = true;
 });
 
-// tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
+tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
 
 filtersPresenter.init();
 tripPresenter.init();
@@ -84,6 +84,5 @@ Promise.all([api.getValues(`/offers`), api.getPoints(), api.getValues(`/destinat
     dataModel.setTypes(UpdateType.INIT, []);
   })
   .finally(() => {
-    tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
     render(tripControlsFirstChildElement, tripTabsElement.getElement(), RenderPosition.AFTEREND);
   });
