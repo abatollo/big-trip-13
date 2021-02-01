@@ -204,6 +204,7 @@ export default class TripPresenter {
   _handleModelEvent(updateType, data) {
     switch (updateType) {
       case UpdateType.PATCH:
+        this._pointPresenter[data.id].replaceFormToPoint();
         this._pointPresenter[data.id].init(data, this._dataModel);
         break;
       case UpdateType.MINOR:
