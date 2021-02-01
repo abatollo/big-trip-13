@@ -172,7 +172,7 @@ export default class TripPresenter {
         this._pointPresenter[update.id].setViewState(PointPresenterViewState.SAVING);
         this._api.updatePoint(update)
           .then((response) => {
-            this._pointPresenter[update.id].replaceFormToPoint()
+            this._pointPresenter[update.id].replaceFormToPoint();
             this._dataModel.updatePoint(updateType, response);
           })
         .catch(() => {
@@ -184,7 +184,7 @@ export default class TripPresenter {
         this._api.addPoint(update)
           .then((response) => {
             this._dataModel.addPoint(updateType, response);
-            this._pointNewPresenter.destroy()
+            this._pointNewPresenter.destroy();
           })
           .catch(() => {
             this._pointNewPresenter.setAborting();
