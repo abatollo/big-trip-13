@@ -136,13 +136,13 @@ export default class PointPresenter {
   }
 
   _handleOpenClick() {
-    this._replacePointToForm();
     this._pointEditElement.updateData({
       isEditing: true,
       isDisabled: false,
       isSaving: false,
       isDeleting: false
     });
+    this._replacePointToForm();
   }
 
   _handleFormSubmit(point) {
