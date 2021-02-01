@@ -27,7 +27,7 @@ export default class PointPresenter {
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleOpenClick = this._handleOpenClick.bind(this);
 
-    this.handleFormSubmit = this.handleFormSubmit.bind(this);
+    this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
     this._handleCloseClick = this._handleCloseClick.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
@@ -47,7 +47,7 @@ export default class PointPresenter {
     this._pointElement.setFavoriteClickHandler(this._handleFavoriteClick);
     this._pointElement.setOpenClickHandler(this._handleOpenClick);
 
-    this._pointEditElement.setFormSubmitHandler(this.handleFormSubmit);
+    this._pointEditElement.setFormSubmitHandler(this._handleFormSubmit);
     this._pointEditElement.setDeleteClickHandler(this._handleDeleteClick);
     this._pointEditElement.setCloseClickHandler(this._handleCloseClick);
 
@@ -76,7 +76,7 @@ export default class PointPresenter {
 
   resetView() {
     if (this._mode !== Mode.DEFAULT) {
-      this._replaceFormToPoint();
+      this.replaceFormToPoint();
     }
   }
 
@@ -110,12 +110,10 @@ export default class PointPresenter {
     }
   }
 
-  handleFormSubmit(point) {
-    this._changeData(
-        UserAction.UPDATE_POINT,
-        UpdateType.PATCH,
-        point
-    );
+  replaceFormToPoint() {
+    replace(this._pointElement, this._pointEditElement);
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
+    this._mode = Mode.DEFAULT;
   }
 
   _replacePointToForm() {
@@ -123,12 +121,6 @@ export default class PointPresenter {
     document.addEventListener(`keydown`, this._escKeyDownHandler);
     this._changeMode();
     this._mode = Mode.EDITING;
-  }
-
-  _replaceFormToPoint() {
-    replace(this._pointElement, this._pointEditElement);
-    document.removeEventListener(`keydown`, this._escKeyDownHandler);
-    this._mode = Mode.DEFAULT;
   }
 
   _handleFavoriteClick() {
@@ -153,6 +145,14 @@ export default class PointPresenter {
     this._replacePointToForm();
   }
 
+  _handleFormSubmit(point) {
+    this._changeData(
+        UserAction.UPDATE_POINT,
+        UpdateType.PATCH,
+        point
+    );
+  }
+
   _handleDeleteClick(point) {
     this._changeData(
         UserAction.DELETE_POINT,
@@ -163,14 +163,14 @@ export default class PointPresenter {
 
   _handleCloseClick() {
     this._pointEditElement.reset(this._point);
-    this._replaceFormToPoint();
+    this.replaceFormToPoint();
   }
 
   _escKeyDownHandler(evt) {
     if (evt.code === `Escape` || evt.code === `Esc`) {
       evt.preventDefault();
       this._pointEditElement.reset(this._point);
-      this._replaceFormToPoint();
+      this.replaceFormToPoint();
     }
   }
 }

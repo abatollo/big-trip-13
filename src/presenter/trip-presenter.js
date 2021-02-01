@@ -172,6 +172,7 @@ export default class TripPresenter {
         this._pointPresenter[update.id].setViewState(PointPresenterViewState.SAVING);
         this._api.updatePoint(update)
           .then((response) => {
+            this._pointPresenter[update.id].replaceFormToPoint()
             this._dataModel.updatePoint(updateType, response);
           })
         .catch(() => {
@@ -183,6 +184,7 @@ export default class TripPresenter {
         this._api.addPoint(update)
           .then((response) => {
             this._dataModel.addPoint(updateType, response);
+            this._pointNewPresenter.destroy()
           })
           .catch(() => {
             this._pointNewPresenter.setAborting();
@@ -204,7 +206,6 @@ export default class TripPresenter {
   _handleModelEvent(updateType, data) {
     switch (updateType) {
       case UpdateType.PATCH:
-        this._pointPresenter[data.id].replaceFormToPoint();
         this._pointPresenter[data.id].init(data, this._dataModel);
         break;
       case UpdateType.MINOR:
