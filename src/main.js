@@ -2,7 +2,7 @@ import {MenuItem, FilterType, UpdateType} from "./const.js";
 import {RenderPosition, render, remove} from "./utils/render.js";
 import Api from "./api.js";
 import DataModel from "./model/data-model.js";
-import FilterModel from "./model/filter-model.js"
+import FilterModel from "./model/filter-model.js";
 import TripPresenter from "./presenter/trip-presenter.js";
 import FiltersPresenter from "./presenter/filters-presenter.js";
 import TripTabsView from "./view/trip-tabs-view.js";
