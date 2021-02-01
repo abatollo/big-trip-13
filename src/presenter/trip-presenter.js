@@ -50,10 +50,10 @@ export default class TripPresenter {
     this._filterModel.removeObserver(this._handleModelEvent);
   }
 
-  createPoint() {
+  createPoint(callback) {
     this._currentSortType = SortType.DAY;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this._pointNewPresenter.init(null, this._dataModel);
+    this._pointNewPresenter.init(callback, this._dataModel);
   }
 
   _renderPointsList() {
@@ -117,7 +117,7 @@ export default class TripPresenter {
   }
 
   _renderPoint(point) {
-    const pointPresenter = new PointPresenter(this._pointsListElement, this._handleViewAction, this._handleModeChange, true);
+    const pointPresenter = new PointPresenter(this._pointsListElement, this._handleViewAction, this._handleModeChange);
     pointPresenter.init(point, this._dataModel);
     this._pointPresenter[point.id] = pointPresenter;
   }

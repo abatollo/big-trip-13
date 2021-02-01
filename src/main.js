@@ -77,30 +77,19 @@ tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
 filtersPresenter.init();
 tripPresenter.init();
 
-api.getPoints()
-  .then((points) => {
+
+Promise.all([api.getValues(`/offers`), api.getPoints(), api.getValues(`/destinations`)])
+  .then(([types, points, cities]) => {
+    dataModel.setTypes(UpdateType.INIT, types);
     dataModel.setPoints(UpdateType.INIT, points);
+    dataModel.setCities(UpdateType.INIT, cities);
   })
   .catch(() => {
     dataModel.setPoints(UpdateType.INIT, []);
+    dataModel.setCities(UpdateType.INIT, []);
+    dataModel.setTypes(UpdateType.INIT, []);
   })
   .finally(() => {
     tripTabsElement.setMenuClickHandler(handleSiteMenuClick);
     render(tripControlsFirstChildElement, tripTabsElement.getElement(), RenderPosition.AFTEREND);
-  });
-
-api.getValues(`/destinations`)
-  .then((cities) => {
-    dataModel.setCities(UpdateType.INIT, cities);
-  })
-  .catch(() => {
-    dataModel.setCities(UpdateType.INIT, []);
-  });
-
-api.getValues(`/offers`)
-  .then((types) => {
-    dataModel.setTypes(UpdateType.INIT, types);
-  })
-  .catch(() => {
-    dataModel.setTypes(UpdateType.INIT, []);
   });

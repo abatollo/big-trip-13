@@ -170,7 +170,8 @@ export default class PointEditView extends SmartView {
     if (point === null) {
       point = BLANK_POINT;
     }
-    this._data = PointEditView.parsePointToData(point, isEditing);
+    this._isEditing = isEditing !== undefined ? isEditing : true;
+    this._data = PointEditView.parsePointToData(point, this._isEditing);
     this._allOffers = allOffers;
     this._allDestinations = allDestinations;
     this._datepickers = {};
@@ -193,7 +194,7 @@ export default class PointEditView extends SmartView {
   }
 
   getTemplate() {
-    return createPointEditTemplate(this._data, this._allOffers, this._allDestinations);
+    return createPointEditTemplate(this._data, this._allOffers, this._allDestinations, this._isEditing);
   }
 
   reset(point) {
@@ -230,8 +231,7 @@ export default class PointEditView extends SmartView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-
-    this._callbacks.formSubmit(PointEditView.parsePointToData(this._data, this._data.isEditing));
+    this._callbacks.formSubmit(PointEditView.parseDataToPoint(this._data));
   }
 
   _closeClickHandler() {
