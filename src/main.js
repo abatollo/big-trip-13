@@ -25,10 +25,6 @@ const tripTabsElement = new TripTabsView();
 const filtersPresenter = new FiltersPresenter(tripControlsLastChildElement, filterModel, dataModel);
 const tripPresenter = new TripPresenter(tripEventsElement, dataModel, filterModel, api);
 
-// document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, () => {
-//   tripPresenter.createPoint();
-// });
-
 const handlePointNewFormClose = () => {
   addEventElement.disabled = false;
 };
