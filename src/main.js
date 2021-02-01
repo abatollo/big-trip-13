@@ -59,9 +59,7 @@ addEventElement.addEventListener(`click`, (evt) => {
   if (statisticsElement) {
     remove(statisticsElement);
   }
-  tripPresenter.destroy();
   filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-  tripPresenter.init();
   tripPresenter.createPoint(handlePointNewFormClose);
   tripTabsElement.getElement().querySelector(`[data-menu-type="${MenuItem.STATS}"]`).classList.remove(`trip-tabs__btn--active`);
   tripTabsElement.setMenuItem(MenuItem.TABLE);
