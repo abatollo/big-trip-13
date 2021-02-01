@@ -146,22 +146,6 @@ export default class TripPresenter {
     }
   }
 
-  _sortPoints(sortType) {
-    switch (sortType) {
-      case SortType.TIME:
-        this._points.sort(sortByTime);
-        break;
-      case SortType.PRICE:
-        this._points.sort(sortByPrice);
-        break;
-      case SortType.DAY:
-      default:
-        this._points.sort(sortByDate);
-    }
-
-    this._currentSortType = sortType;
-  }
-
   _handleSortTypeChange(sortType) {
     if (this._currentSortType === sortType) {
       return;
