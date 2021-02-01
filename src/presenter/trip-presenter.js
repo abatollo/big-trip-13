@@ -156,7 +156,7 @@ export default class TripPresenter {
         break;
       case SortType.DAY:
       default:
-        this._points = this._sourcedPoints.slice();
+        this._points.sort(sortByDate);
     }
 
     this._currentSortType = sortType;
