@@ -122,14 +122,6 @@ export default class TripPresenter {
     this._pointPresenter[point.id] = pointPresenter;
   }
 
-  _clearPointsList() {
-    Object
-      .values(this._pointPresenter)
-      .forEach((presenter) => {
-        presenter.destroy();
-      });
-  }
-
   _clearTrip({resetSortType = false} = {}) {
     this._pointNewPresenter.destroy();
 
