@@ -9,7 +9,7 @@ import TripTabsView from "./view/trip-tabs-view.js";
 import StatisticsView from "./view/statistics-view.js";
 
 const AUTHORIZATION = `Basic eo0w590ik29889a`;
-const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
+const END_POINT = `https://16.ecmascript.pages.academy/big-trip`;
 
 const tripControlsElement = document.querySelector(`.trip-controls`);
 const tripControlsFirstChildElement = tripControlsElement.firstChild;
