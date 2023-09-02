@@ -1,6 +1,6 @@
 {
   "name": "big-trip",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "private": true,
   "description": "Проект «Большое путешествие» от HTML Academy",
   "scripts": {
@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "css-loader": "^6.8.1",
-    "eslint": "^8.46.0",
+    "eslint": "^8.48.0",
     "eslint-config-htmlacademy": "^9.1.1",
     "style-loader": "^3.3.3",
     "webpack": "^5.88.2",
@@ -22,7 +22,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "chart.js": "^4.3.3",
+    "chart.js": "^4.4.0",
     "chartjs-plugin-datalabels": "^2.2.0",
     "dayjs": "^1.11.9",
     "flatpickr": "^4.6.13"
