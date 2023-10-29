@@ -1,6 +1,6 @@
 {
   "name": "big-trip",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "private": true,
   "description": "Проект «Большое путешествие» от HTML Academy",
   "scripts": {
@@ -19,7 +19,7 @@
     "webpack-dev-server": "^4.15.1"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "dependencies": {
     "chart.js": "^4.4.0",
